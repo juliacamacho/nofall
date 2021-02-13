@@ -9,6 +9,7 @@ const dateStrOpt = {
 };
 
 const AlertsPage = () => {
+    const [loading, setLoading] = useState(true);
     const [alerts, setAlerts] = useState([]);
 
     useEffect(() => {
@@ -31,6 +32,7 @@ const AlertsPage = () => {
                     alerts[alerts.length - 1].push(alert);
                 });
                 setAlerts(alerts);
+                setLoading(false);
             });
 
         return () => {
@@ -41,40 +43,47 @@ const AlertsPage = () => {
 
 
     return (
-        <>
-            <Navbar/>
-            <Tabs/>
-            <div className="px-16 pb-8">
+        loading
+            ?
+            <>
+                <Navbar/>
+                <Tabs/>
+            </>
+            :
+            <>
+                <Navbar/>
+                <Tabs/>
+                <div className="px-16 pb-8">
 
-                <div className="space-y-10">
-                    {
-                        alerts.map((alertGroup) => {
-                            const date = alertGroup[0].timestamp.toDate();
-                            const dateStr = date.toLocaleDateString('en-US', dateStrOpt);
-                            return (
-                                <div className="space-y-3" key={dateStr}>
-                                    <span className="font-bold text-2xl">{dateStr}</span>
-                                    {
-                                        alertGroup.map((alert) => {
-                                            return (
-                                            <AlertCard
-                                                key={alert.timestamp.toMillis()}
-                                                type={alert.type}
-                                                message={alert.message}
-                                                timestamp={alert.timestamp.toMillis()}
-                                            />
-                                            )
-                                        })
-                                    }
-                                </div>
-                            )
-                        })
-                    }
+                    <div className="space-y-10">
+                        {
+                            alerts.map((alertGroup) => {
+                                const date = alertGroup[0].timestamp.toDate();
+                                const dateStr = date.toLocaleDateString('en-US', dateStrOpt);
+                                return (
+                                    <div className="space-y-3" key={dateStr}>
+                                        <span className="font-bold text-2xl">{dateStr}</span>
+                                        {
+                                            alertGroup.map((alert) => {
+                                                return (
+                                                    <AlertCard
+                                                        key={alert.timestamp.toMillis()}
+                                                        type={alert.type}
+                                                        message={alert.message}
+                                                        timestamp={alert.timestamp.toMillis()}
+                                                    />
+                                                )
+                                            })
+                                        }
+                                    </div>
+                                )
+                            })
+                        }
+                    </div>
+
+
                 </div>
-
-
-            </div>
-        </>
+            </>
     )
 };
 
