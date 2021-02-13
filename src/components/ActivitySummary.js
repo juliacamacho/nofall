@@ -7,8 +7,8 @@ const ActivitySummary = (props) => {
     return ( 
         <div className="bg-indigo-50 rounded-lg py-8 px-10 flex space-x-20 items-center mb-6">
             
-            <div className="w-1/6">
-                <h1 className="text-xl font-semibold pb-4">Overall Score:</h1>
+            <div className="w-60">
+                <h1 className="text-xl font-semibold pb-4">Overall Progress:</h1>
                 {/* <h1 className="text-6xl font-semibold">{props.userInfo.score}/100</h1> */}
                 <CircularProgressbar 
                     value={props.score} 
@@ -20,7 +20,7 @@ const ActivitySummary = (props) => {
                     })}    
                     />
             </div>
-            <div className="w-1/2">
+            <div className="w-80">
                 <h1 className="text-xl font-semibold pb-4">Current Action:</h1>
                 <h1 className="text-6xl font-semibold">{props.userInfo.status}</h1>
             </div>
