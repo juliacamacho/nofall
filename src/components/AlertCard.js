@@ -1,5 +1,13 @@
 import React from "react";
 
+const dateStrOpt = {
+    weekday: 'long', month: 'long', day: 'numeric',
+};
+
+const timeStrOpt = {
+    hour: 'numeric', minute: 'numeric'
+}
+
 export default function AlertCard({type = 'none', message = "unknown event", timestamp = 0}) {
 
     let primaryColor = "gray-600";
@@ -20,14 +28,6 @@ export default function AlertCard({type = 'none', message = "unknown event", tim
 
         default:
             console.debug("Unknown type passed into AlertCard");
-    }
-
-    const dateStrOpt = {
-        weekday: 'long', month: 'long', day: 'numeric',
-    };
-
-    const timeStrOpt = {
-        hour: 'numeric', minute: 'numeric'
     }
 
     const time = new Date(timestamp);
