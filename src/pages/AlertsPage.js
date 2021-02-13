@@ -13,7 +13,7 @@ const AlertsPage = () => {
 
     useEffect(() => {
         const stopListening = db
-            .collection("users/gwmg2hLSPUxzx3PKbj5r/logs")
+            .collection("users/gwmg2hLSPUxzx3PKbj5r/alerts")
             .orderBy("timestamp", "desc")
             .limit(100)
             .onSnapshot(snapshot => {
