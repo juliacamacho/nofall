@@ -27,7 +27,7 @@ const VideosPage = () => {
                 <h1 className="text-2xl font-bold mb-8">Friday, Februrary 12th</h1>
                 {/* videos here */}
                 <div className="flex justify-center items-center">
-                    <iframe src={url} width="720" height="500" />
+                    <iframe src={url} width="720" height="900" />
                 </div>
             </div>
         </>  

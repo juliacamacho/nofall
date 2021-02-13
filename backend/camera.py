@@ -17,14 +17,14 @@ mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose(
     min_detection_confidence=0.5, min_tracking_confidence=0.5)
-idx_to_coordinates = {}
 import time
 from datetime import datetime
 import time
 from flask import Flask
 from flask import Response
 import threading
-
+from collections import deque
+from api import *
 
 NOSE = 0
 RIGHT_EYE_INNER = 1
@@ -82,11 +82,31 @@ print("[INFO] opening ip camera feed...")
 vs = VideoStream("http://admin:750801@98.199.131.202/videostream.cgi?rate=0").start()
 time.sleep(2.0)
 
+
+idx_to_coordinates = {}
+history_cache = deque([])              # max size will be 20, stores past 20 statuses
+
+def allSame():
+    global history_cache
+    prev = None
+    for status in history_cache:
+        if prev == None:
+            prev = status
+        elif prev != status:
+            return False
+    return True
+
+def cache(status):
+    global history_cache
+
+    history_cache.append(status)
+    if len(history_cache) == 20:
+        history_cache.popleft()
+            
+
 def analyze_frames(image):
     
-    # Flip the image horizontally for a later selfie-view display, and convert
-    # the BGR image to RGB.
-    image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
+    
     # To improve performance, optionally mark the image as not writeable to
     # pass by reference.
     image.flags.writeable = False
@@ -168,12 +188,21 @@ def analyze_frames(image):
     if knee_shoulder_angle<45 and hip_shoulder_angle<45:
         image = cv2.putText(image, "Fallen over", (20,80), font,  
                     fontScale, color, thickness, cv2.LINE_AA)
-    if ratio<0.5 or l_leg_angle<60 or r_leg_angle<60:
+        cache("fallen")
+        if allSame():
+            start_fall()
+    elif ratio<0.5 or l_leg_angle<60 or r_leg_angle<60:
         image = cv2.putText(image, "Sitting down", (20,50), font,  
                     fontScale, color, thickness, cv2.LINE_AA)
+        cache("sitting")
+        if allSame():
+            start_sit()
     else:
         image = cv2.putText(image, "Standing up", (20,50), font,  
                     fontScale, color, thickness, cv2.LINE_AA)
+        cache("standing")
+        if allSame():
+            start_stand()
     return image
 
 def start_monitor(): 
@@ -193,9 +222,15 @@ def start_monitor():
             image = imutils.resize(image, width=640)
             image = cv2.copyMakeBorder( image, int((image.shape[1]-image.shape[0])/2), int((image.shape[1]-image.shape[0])/2),0, 0, cv2.BORDER_CONSTANT)
     
-
+        # Flip the image horizontally for a later selfie-view display, and convert
+        # the BGR image to RGB.
+        image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
         image1 = analyze_frames(image)
         if image1 is None:
+            cache("unknown")
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            if allSame():
+                unknown_status()
             with lock:
                 outputFrame = image.copy()
             continue
