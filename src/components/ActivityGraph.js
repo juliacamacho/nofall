@@ -132,7 +132,7 @@ const ActivityGraph = (props) => {
                             x0: 0,
                             y0: goal,
                             x1: sittingX.length,
-                            y1: 12,
+                            y1: Math.max(goal, ...sittingY)*1.1,
                             fillcolor: 'green',
                             opacity: 0.1,
                             line: {width: 0}
@@ -186,7 +186,7 @@ const ActivityGraph = (props) => {
                             x0: 0,
                             y0: goal,
                             x1: standupsX.length,
-                            y1: 20,
+                            y1: Math.max(goal, ...standupsY)*1.1,
                             fillcolor: 'green',
                             opacity: 0.1,
                             line: {width: 0}
