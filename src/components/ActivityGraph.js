@@ -27,7 +27,7 @@ const ActivityGraph = (props) => {
     useEffect(() => {
         const stopListening = db
             .collection("users/gwmg2hLSPUxzx3PKbj5r/logs")
-            .doc("h2vVRIIuNyr65vgZCe2Y")
+            .doc(props.logId)
             .onSnapshot(snapshot => {
                 console.log("new activity data");
                 let timeX = []

@@ -6,38 +6,42 @@ var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'S
 
 const AssessmentGraph = (props) => {
     const [tupGo, setTupGo] = useState({
-        'x': [],
-        'y': []
+        'x': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        'y': [0,0,0,0,0,0,0]
     });
     const [chairStand, setChairStand] = useState({
-        'x': [],
-        'y': []
+        'x': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        'y': [0,0,0,0,0,0,0]
     });
     useEffect(() => {
         const stopListening = db
             .collection("users/gwmg2hLSPUxzx3PKbj5r/logs")
-            .doc("h2vVRIIuNyr65vgZCe2Y")
+            .doc(props.logId)
             .onSnapshot(snapshot => {
                 console.log("new activity data");
                 let tupGo = {
                     'x': [],
                     'y': []
                 };
-                snapshot.data().tupGo.forEach((value, idx) => {
-                    tupGo.x.push(days[idx])
-                    tupGo.y.push(value)
-                });
-                setTupGo(tupGo)
+                if(snapshot.data().tupGo)
+                    snapshot.data().tupGo.forEach((value, idx) => {
+                        tupGo.x.push(days[idx])
+                        tupGo.y.push(value)
+                    });
+                if(tupGo.y.length !== 0)
+                    setTupGo(tupGo)
 
                 let chair = {
                     'x': [],
                     'y': []
                 };
-                snapshot.data().chairStand.forEach((value, idx) => {
-                    chair.x.push(days[idx])
-                    chair.y.push(value)
-                });
-                setChairStand(chair)
+                if(snapshot.data().chairStand)
+                    snapshot.data().chairStand.forEach((value, idx) => {
+                        chair.x.push(days[idx])
+                        chair.y.push(value)
+                    });
+                if(chairStand.y.length !== 0)
+                    setChairStand(chair)
             })
 
         return () => {

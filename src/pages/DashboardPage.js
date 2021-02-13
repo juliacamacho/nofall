@@ -9,6 +9,8 @@ import ActivityCard from '../components/ActivityCard'
 import AssessmentGraph from '../components/AssessmentGraph'
 import {db} from "../firebase";
 
+const logId = "LYFQJFgzO0vsij7DBXqy"
+
 const DashboardPage = () => {
     const [loading, setLoading] = useState(true);
     const [userInfo, setUserInfo] = useState({});
@@ -51,8 +53,8 @@ const DashboardPage = () => {
 
                     <h1 className="text-2xl font-bold mb-6">Ambient Activity Report</h1>
                     <ActivitySummary userInfo={userInfo}/>
-                    <ActivityGraph title="Time Spent Active" type="line"/>
-                    <ActivityGraph title="Frequency of Stand-ups" type="bar"/>
+                    <ActivityGraph title="Time Spent Active" type="line" logId={logId} />
+                    <ActivityGraph title="Frequency of Stand-ups" type="bar" logId={logId} />
                     <div className="grid grid-cols-3 gap-x-4">
                         <ActivityCard title="Average Walking Speed" yesterday={3} lastWeek={-4} lastMonth={-14}/>
                         <ActivityCard title="Average Sitting/Standing Speed" yesterday={3} lastWeek={-4}
@@ -61,8 +63,8 @@ const DashboardPage = () => {
                     </div>
 
                     <h1 className="text-2xl font-bold mt-14 mb-6">Proactive Risk Assessment Results</h1>
-                    <AssessmentGraph title="Timed Up-and-Go Test"/>
-                    <AssessmentGraph title="Chair Stand Test"/>
+                    <AssessmentGraph title="Timed Up-and-Go Test" logId={logId} />
+                    <AssessmentGraph title="Chair Stand Test" logId={logId} />
 
                 </div>
             </>
