@@ -15,6 +15,7 @@ import imutils
 import numpy as np
 from camera import analyze_frames
 
+
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
@@ -71,7 +72,7 @@ def _normalized_to_pixel_coordinates(
 pose = mp_pose.Pose(
     min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
-fvs = FileVideoStream("VID_20210212_212511_Trim.mp4").start()
+fvs = FileVideoStream("VID_20210213_100011_Trim.mp4").start()
 image = fvs.read()
 
 if image.shape[1]<image.shape[0]: #width is smaller than height
@@ -87,7 +88,7 @@ frameHeight = image.shape[0]
 
 aspect_ratio = frameWidth/frameHeight
 
-vid_writer = cv2.VideoWriter("output2.avi",cv2.VideoWriter_fourcc('M','J','P','G'), 15, (image.shape[1],image.shape[0]))
+vid_writer = cv2.VideoWriter("output3.avi",cv2.VideoWriter_fourcc('M','J','P','G'), 15, (image.shape[1],image.shape[0]))
 
 idx_to_coordinates = {}
   
@@ -105,8 +106,12 @@ while fvs.more():
   if image.shape[1]>image.shape[0]: #height is smaller than width
     image = imutils.resize(image, width=640)
     image = cv2.copyMakeBorder( image, int((image.shape[1]-image.shape[0])/2), int((image.shape[1]-image.shape[0])/2),0, 0, cv2.BORDER_CONSTANT)
-
+# Flip the image horizontally for a later selfie-view display, and convert
+        # the BGR image to RGB.
+  image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
   image1 = analyze_frames(image)
+  if image1 is None:
+      continue
   cv2.imshow('MediaPipe Pose', image1)
   vid_writer.write(image1)
   if cv2.waitKey(5) & 0xFF == 27:
