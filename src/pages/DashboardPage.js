@@ -39,20 +39,22 @@ const DashboardPage = () => {
     }, [db]);
 
     const [overallScore, setOverallScore] = useState(0);
-    const [activeScore, setActiveScore] = useState(0);
-    const [standScore, setStandScore] = useState(0);
+    let activeScore = 0;
+    let standScore = 0;
 
     const updateScore = (value, type) => {
+        let score = 0;
+        console.log("Got score", value, type);
         if (type == "active") {
-            setActiveScore(value)
+            activeScore = value;
         }
         else if (type == "stand") {
-            setStandScore(value)
+            standScore = value;
         }
         else {
             console.log("undefined type passed")
         }
-        let score = (activeScore + standScore) / 2
+        score = (activeScore + standScore)/2;
         setOverallScore(score);
         console.log('overallScore:', overallScore)
     }
