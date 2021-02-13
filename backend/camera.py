@@ -204,15 +204,17 @@ def test_cache_add(status, image, speed):
         isTesting=False
         return;
     
-    global vid_writer
-    vid_writer.write(image)
+    
     global recordCounter
     recordCounter+=1
     # print(recordCounter)
     if testNum==1:
-        return task1_analysis(status,image)
+        image = task1_analysis(status,image)
     if testNum==2:
-        return task2_analysis(speed,image)        
+        image = task2_analysis(speed,image)     
+    
+    global vid_writer
+    vid_writer.write(image)
             
 def add_position(tup):
     global position_cache
