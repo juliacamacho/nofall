@@ -108,6 +108,8 @@ def start_monitor():
         image.flags.writeable = False
         results = pose.process(image)
         if results.pose_landmarks is None:
+            with lock:
+                outputFrame = image.copy()
             continue
         # Draw the pose annotation on the image.
         image.flags.writeable = True
