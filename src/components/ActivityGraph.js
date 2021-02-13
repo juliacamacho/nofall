@@ -1,11 +1,12 @@
 import React from "react";
 import { Link } from 'react-router-dom';
+import Plot from 'react-plotly.js';
 
 const ActivityGraph = (props) => {
     return (
         <div className="bg-gray-100 rounded-lg py-8 px-10 mb-6">
 
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mb-6">
 
                 <div className="flex space-x-4 items-baseline">
                     <h1 className="text-xl font-semibold">{props.title}</h1>
@@ -21,7 +22,19 @@ const ActivityGraph = (props) => {
 
             </div>
             
-            {/* graph here */}
+            <Plot 
+                data={[
+                    {
+                        x: [1, 2, 3],
+                        y: [2, 6, 3],
+                        type: 'scatter',
+                        mode: 'lines+markers',
+                        marker: {color: 'red'},
+                    },
+                    {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
+                    ]}
+                    layout={{width: 1470, autosize: true, title: 'A Fancy Plot'}}
+            />
 
         </div>
     )
