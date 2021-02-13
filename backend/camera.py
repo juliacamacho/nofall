@@ -406,6 +406,14 @@ def video_feed():
 	return Response(generate(),
 		mimetype = "multipart/x-mixed-replace; boundary=frame")
 
+@app.route("/start_task1")
+def start_task1():
+    return 'Success'
+
+@app.route("/start_task2")
+def start_task2():
+    return 'Success'
+
 if __name__ == '__main__':
     # start a thread that will perform motion detection
     t = threading.Thread(target=start_monitor)
