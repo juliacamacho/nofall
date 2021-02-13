@@ -7,8 +7,9 @@ const AlertsPage = () => {
     return (
         <>
             <Navbar/>
-            <div className="py-8 px-16">
-                <Tabs/>
+            <Tabs/>
+            <div className="px-16 pb-8">
+
                 <div className="space-y-3">
                     <AlertCard
                         type='info'

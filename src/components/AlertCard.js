@@ -38,7 +38,7 @@ export default function AlertCard({type = 'none', message = "unknown event", tim
     const additionalClasses = `text-${primaryColor} bg-${secondaryColor}`;
 
     return (
-        <div className={"flex rounded-lg px-5 py-3 space-x-5 fill-current " + additionalClasses}>
+        <div className={"flex card px-5 py-3 space-x-5 fill-current " + additionalClasses}>
             <span className="inline-block">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                     <path fill="none" d="M0 0h24v24H0z"/>

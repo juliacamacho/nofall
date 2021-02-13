@@ -14,10 +14,10 @@ const ActivityGraph = (props) => {
                 </div>
 
                 <div className="flex items-center space-x-6">
-                    <button className="text-lg font-semibold text-indigo-500 hover:text-indigo-400">Year</button>
-                    <button className="text-lg font-semibold text-indigo-500 hover:text-indigo-400">Month</button>
-                    <button className="text-lg font-semibold text-indigo-500 hover:text-indigo-400">Week</button>
-                    <button className="bg-indigo-500 rounded-lg py-1 px-4 text-lg font-semibold text-white">Day</button>
+                    <button className="text-lg font-semibold text-indigo-500 hover:text-indigo-400 focus:outline-none">Year</button>
+                    <button className="text-lg font-semibold text-indigo-500 hover:text-indigo-400 focus:outline-none">Month</button>
+                    <button className="text-lg font-semibold text-indigo-500 hover:text-indigo-400 focus:outline-none">Week</button>
+                    <button className="bg-indigo-500 rounded-lg py-1 px-4 text-lg font-semibold text-white focus:outline-none">Day</button>
                 </div>
 
             </div>
