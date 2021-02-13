@@ -2,10 +2,12 @@ import React, {useEffect, useState} from "react";
 import { Link } from 'react-router-dom';
 import Plot from 'react-plotly.js';
 import {db} from "../firebase";
+// import d3 from "d3-time-format"
 
 function formatTime(t) {
     return `${t}:00`
 }
+// const f = d3.timeFormat()
 
 const ActivityGraph = (props) => {
 
@@ -22,11 +24,11 @@ const ActivityGraph = (props) => {
                 console.log("new activity data");
                 let timeX = []
                 let timeY = []
-                snapshot.data().minutely.forEach((value) => {
-                    timeY.push(value/3600)
+                snapshot.data().minutely.forEach((value, idx) => {
+                    timeY.push((60*idx-value)/3600)
                 });
-                for (let i=1; i<=timeY.length; i++){
-                    timeX.push(i/60)
+                for (let i=0; i<timeY.length; i++){
+                    timeX.push(formatTime(i/60))
                 }
                 setSittingX(timeX);
                 setSittingY(timeY);
@@ -82,10 +84,11 @@ const ActivityGraph = (props) => {
                     autosize: true,
                     xaxis: {
                         title: 'Number of Hours',
+                        tickvals: standupsX,
                         titlefont: {
-                        family: 'Inter, sans-serif',
-                        size: 18,
-                        color: 'black'
+                            family: 'Inter, sans-serif',
+                            size: 18,
+                            color: 'black',
                     }},
                     yaxis: {
                         title: 'Number of Hours',

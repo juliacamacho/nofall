@@ -127,7 +127,7 @@ def minute_updates():
         minutely_history.append(cul_seconds+ min(min_total_sit, 60))
 
         # times stood up
-        hr = i%60
+        hr = int(i/60)
         stood_history[hr] += min_times_stood
 
         logs_ref.document('LYFQJFgzO0vsij7DBXqy').update({
