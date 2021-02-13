@@ -22,19 +22,64 @@ const ActivityGraph = (props) => {
 
             </div>
             
+            {(props.type == "line") ? 
             <Plot 
                 data={[
                     {
                         x: [1, 2, 3],
-                        y: [2, 6, 3],
+                        y: [0, 0.5, 1.5],
                         type: 'scatter',
                         mode: 'lines+markers',
-                        marker: {color: 'red'},
-                    },
-                    {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
-                    ]}
-                    layout={{width: 1470, autosize: true, title: 'A Fancy Plot'}}
+                        marker: {color: 'rgb(99, 102, 241)', size: 12},
+                    }]}
+                layout={{
+                    width: 1470, 
+                    autosize: true,
+                    xaxis: {
+                        title: 'Time of Day',
+                        titlefont: {
+                        family: 'Inter, sans-serif',
+                        size: 18,
+                        color: 'black'
+                    }},
+                    yaxis: {
+                        title: 'Number of Hours',
+                        titlefont: {
+                        family: 'Inter, sans-serif',
+                        size: 18,
+                        color: 'black'
+                    }}
+                }}
             />
+            :
+            <Plot 
+                data={[
+                    {
+                        x: [1, 2, 3],
+                        y: [1, 4, 2],
+                        type: 'bar',
+                        marker: {color: 'rgb(99, 102, 241)'}
+                    }]}
+                layout={{
+                    width: 1470, 
+                    autosize: true,
+                    xaxis: {
+                        title: 'Time of Day',
+                        titlefont: {
+                        family: 'Inter, sans-serif',
+                        size: 18,
+                        color: 'black'
+                    }},
+                    yaxis: {
+                        title: 'Number of Stand-ups',
+                        titlefont: {
+                        family: 'Inter, sans-serif',
+                        size: 18,
+                        color: 'black'
+                    }}
+                }}
+            />
+            }
 
         </div>
     )
