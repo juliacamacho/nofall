@@ -2,7 +2,9 @@ import React, {useEffect, useState} from "react";
 import { Link } from 'react-router-dom';
 import Plot from 'react-plotly.js';
 import {db} from "../firebase";
-var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 
 const AssessmentGraph = (props) => {
     const [tupGo, setTupGo] = useState({
@@ -13,7 +15,27 @@ const AssessmentGraph = (props) => {
         'x': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
         'y': [0,0,0,0,0,0,0]
     });
+    const [goal, setGoal] = useState(10);
+    let goalInputRef = React.createRef();
+
+    const handleUpdateGoal = () => {
+        console.log(goalInputRef.current.value);
+        setGoal(goalInputRef.current.value);
+        // also save goal to firestore
+        db.collection("users")
+            .doc("gwmg2hLSPUxzx3PKbj5r")
+            .set({
+                goalConfig: {[props.title]: goalInputRef.current.value}
+            }, {merge: true});
+    }
+
     useEffect(() => {
+        // set goals
+        if (props.userInfo && props.userInfo.goalConfig && props.userInfo.goalConfig[props.title]) {
+            setGoal(props.userInfo.goalConfig[props.title]);
+            goalInputRef.current.value = props.userInfo.goalConfig[props.title];
+        }
+
         const stopListening = db
             .collection("users/gwmg2hLSPUxzx3PKbj5r/logs")
             .doc(props.logId)
@@ -48,8 +70,8 @@ const AssessmentGraph = (props) => {
             stopListening();
             console.log("done");
         }
-
     }, [db]);
+
     return (
         <div className="bg-gray-100 rounded-lg py-8 px-10 mb-6">
 
@@ -57,7 +79,16 @@ const AssessmentGraph = (props) => {
 
                 <div className="flex space-x-4 items-baseline">
                     <h1 className="text-xl font-semibold">{props.title}</h1>
-                    <Link className="text-gray-600 hover:text-indigo-500 text-sm">Edit Goal</Link>
+                    <span className="text-sm">
+                        <label>Goal: </label>
+                        <input
+                            className="text-gray-600 bg-gray-100 focus:bg-white focus:outline-none text-sm w-12"
+                            type="number"
+                            defaultValue={goal}
+                            ref={goalInputRef}
+                            onBlur={handleUpdateGoal}
+                        />
+                    </span>
                 </div>
 
                 <div className="flex items-center space-x-6">
@@ -78,7 +109,6 @@ const AssessmentGraph = (props) => {
                         marker: {color: 'rgb(99, 102, 241)'}
                     }]}
                 layout={{
-                    width: 1470, 
                     autosize: true,
                     xaxis: {
                         title: 'Weekday',
@@ -93,11 +123,36 @@ const AssessmentGraph = (props) => {
                         family: 'Inter, sans-serif',
                         size: 18,
                         color: 'black'
-                    }}
+                    }},
+                    shapes: [
+                        {
+                            type: 'rect',
+                            x0: -0.5,
+                            y0: goal,
+                            x1: tupGo.x.length,
+                            y1: 100,
+                            fillcolor: 'green',
+                            opacity: 0.1,
+                            line: {width: 0}
+                        },
+                        {
+                            type: 'line',
+                            x0: -0.5,
+                            y0: goal,
+                            x1: tupGo.x.length,
+                            y1: goal,
+                            line: {
+                                color: 'green',
+                                width: 1
+                            }
+                        }
+                    ]
                 }}
+                useResizeHandler
+                style={{ width: '100%', height: '100%' }}
             />
             :
-            <Plot 
+            <Plot
                 data={[
                     {
                         x: chairStand.x,
@@ -106,7 +161,6 @@ const AssessmentGraph = (props) => {
                         marker: {color: 'rgb(99, 102, 241)'}
                     }]}
                 layout={{
-                    width: 1470, 
                     autosize: true,
                     xaxis: {
                         title: 'Weekday',
@@ -121,8 +175,33 @@ const AssessmentGraph = (props) => {
                         family: 'Inter, sans-serif',
                         size: 18,
                         color: 'black'
-                    }}
+                    }},
+                    shapes: [
+                        {
+                            type: 'rect',
+                            x0: -0.5,
+                            y0: goal,
+                            x1: chairStand.x.length,
+                            y1: 100,
+                            fillcolor: 'green',
+                            opacity: 0.1,
+                            line: {width: 0}
+                        },
+                        {
+                            type: 'line',
+                            x0: -0.5,
+                            y0: goal,
+                            x1: chairStand.x.length,
+                            y1: goal,
+                            line: {
+                                color: 'green',
+                                width: 1
+                            }
+                        }
+                    ]
                 }}
+                useResizeHandler
+                style={{ width: '100%', height: '100%' }}
             />
             }
 

@@ -9,7 +9,7 @@ const ActivitySummary = (props) => {
                 <h1 className="text-xl font-semibold pb-4">Overall Score:</h1>
                 <h1 className="text-6xl font-semibold">{props.userInfo.score}/100</h1>
             </div>
-            <div className="w-1/4">
+            <div className="w-1/2">
                 <h1 className="text-xl font-semibold pb-4">Current Action:</h1>
                 <h1 className="text-6xl font-semibold">{props.userInfo.status}</h1>
             </div>

@@ -22,9 +22,16 @@ const ActivityGraph = (props) => {
     const handleUpdateGoal = () => {
         console.log(goalInputRef.current.value);
         setGoal(goalInputRef.current.value);
+        // also save goal to firestore
+        db.collection("users")
+            .doc("gwmg2hLSPUxzx3PKbj5r")
+            .set({
+                goalConfig: {[props.title]: goalInputRef.current.value}
+            }, {merge: true});
     }
 
     useEffect(() => {
+        // fetch series data
         const stopListening = db
             .collection("users/gwmg2hLSPUxzx3PKbj5r/logs")
             .doc(props.logId)
@@ -50,6 +57,12 @@ const ActivityGraph = (props) => {
                 setStandupsX(timeX);
                 setStandupsY(timeY);
             })
+
+        // set goals
+        if (props.userInfo && props.userInfo.goalConfig && props.userInfo.goalConfig[props.title]) {
+            setGoal(props.userInfo.goalConfig[props.title]);
+            goalInputRef.current.value = props.userInfo.goalConfig[props.title];
+        }
 
         return () => {
             stopListening();
@@ -97,7 +110,6 @@ const ActivityGraph = (props) => {
                         marker: {color: 'rgb(99, 102, 241)', size: 4},
                     }]}
                 layout={{
-                    width: 1300,
                     autosize: true,
                     xaxis: {
                         title: 'Time of Day',
@@ -114,17 +126,29 @@ const ActivityGraph = (props) => {
                         size: 18,
                         color: 'black'
                     }},
-                    shapes: [{
-                        type: 'line',
-                        x0: 0,
-                        y0: goal,
-                        x1: 1440,
-                        y1: goal,
-                        line: {
-                            color: 'green',
-                            width: 1
+                    shapes: [
+                        {
+                            type: 'rect',
+                            x0: 0,
+                            y0: goal,
+                            x1: sittingX.length,
+                            y1: Math.max(goal, ...sittingY)*1.1,
+                            fillcolor: 'green',
+                            opacity: 0.1,
+                            line: {width: 0}
+                        },
+                        {
+                            type: 'line',
+                            x0: 0,
+                            y0: goal,
+                            x1: sittingX.length,
+                            y1: goal,
+                            line: {
+                                color: 'green',
+                                width: 1
+                            }
                         }
-                    }]
+                    ]
 
                 }}
                 useResizeHandler
@@ -141,7 +165,6 @@ const ActivityGraph = (props) => {
                         marker: {color: 'rgb(99, 102, 241)'}
                     }]}
                 layout={{
-                    width: 1300,
                     autosize: true,
                     xaxis: {
                         title: 'Time of Day',
@@ -156,7 +179,30 @@ const ActivityGraph = (props) => {
                         family: 'Inter, sans-serif',
                         size: 18,
                         color: 'black'
-                    }}
+                    }},
+                    shapes: [
+                        {
+                            type: 'rect',
+                            x0: 0,
+                            y0: goal,
+                            x1: standupsX.length,
+                            y1: Math.max(goal, ...standupsY)*1.1,
+                            fillcolor: 'green',
+                            opacity: 0.1,
+                            line: {width: 0}
+                        },
+                        {
+                            type: 'line',
+                            x0: 0,
+                            y0: goal,
+                            x1: standupsX.length,
+                            y1: goal,
+                            line: {
+                                color: 'green',
+                                width: 1
+                            }
+                        }
+                    ]
                 }}
                 useResizeHandler
                 style={{ width: '100%', height: '100%' }}

@@ -53,8 +53,8 @@ const DashboardPage = () => {
 
                     <h1 className="text-2xl font-bold mb-6">Ambient Activity Report</h1>
                     <ActivitySummary userInfo={userInfo}/>
-                    <ActivityGraph title="Time Spent Active" type="line" logId={logId} />
-                    <ActivityGraph title="Frequency of Stand-ups" type="bar" logId={logId} />
+                    <ActivityGraph title="Time Spent Active" type="line" logId={logId} userInfo={userInfo} />
+                    <ActivityGraph title="Frequency of Stand-ups" type="bar" logId={logId} userInfo={userInfo} />
                     <div className="grid grid-cols-3 gap-x-4">
                         <ActivityCard title="Average Walking Speed" yesterday={3} lastWeek={-4} lastMonth={-14}/>
                         <ActivityCard title="Average Sitting/Standing Speed" yesterday={3} lastWeek={-4}
@@ -63,8 +63,8 @@ const DashboardPage = () => {
                     </div>
 
                     <h1 className="text-2xl font-bold mt-14 mb-6">Proactive Risk Assessment Results</h1>
-                    <AssessmentGraph title="Timed Up-and-Go Test" logId={logId} />
-                    <AssessmentGraph title="Chair Stand Test" logId={logId} />
+                    <AssessmentGraph title="Timed Up-and-Go Test" logId={logId} userInfo={userInfo} />
+                    <AssessmentGraph title="Chair Stand Test" logId={logId} userInfo={userInfo} />
 
                 </div>
             </>
