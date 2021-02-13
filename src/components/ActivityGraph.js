@@ -22,9 +22,16 @@ const ActivityGraph = (props) => {
     const handleUpdateGoal = () => {
         console.log(goalInputRef.current.value);
         setGoal(goalInputRef.current.value);
+        // also save goal to firestore
+        db.collection("users")
+            .doc("gwmg2hLSPUxzx3PKbj5r")
+            .set({
+                goalConfig: {[props.title]: goalInputRef.current.value}
+            }, {merge: true});
     }
 
     useEffect(() => {
+        // fetch series data
         const stopListening = db
             .collection("users/gwmg2hLSPUxzx3PKbj5r/logs")
             .doc("h2vVRIIuNyr65vgZCe2Y")
@@ -50,6 +57,12 @@ const ActivityGraph = (props) => {
                 setStandupsX(timeX);
                 setStandupsY(timeY);
             })
+
+        // set goals
+        if (props.userInfo && props.userInfo.goalConfig && props.userInfo.goalConfig[props.title]) {
+            setGoal(props.userInfo.goalConfig[props.title]);
+            goalInputRef.current.value = props.userInfo.goalConfig[props.title];
+        }
 
         return () => {
             stopListening();
