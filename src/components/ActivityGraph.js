@@ -1,8 +1,63 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { Link } from 'react-router-dom';
 import Plot from 'react-plotly.js';
+import {db} from "../firebase";
+// import d3 from "d3-time-format"
+
+function formatTime(t) {
+    return `${t}:00`
+}
+// const f = d3.timeFormat()
 
 const ActivityGraph = (props) => {
+
+    const [sittingX, setSittingX] = useState([]);
+    const [sittingY, setSittingY] = useState([]);
+    const [standupsX, setStandupsX] = useState([]);
+    const [standupsY, setStandupsY] = useState([]);
+
+    const [goal, setGoal] = useState(10);
+    let goalInputRef = React.createRef();
+
+    const handleUpdateGoal = () => {
+        console.log(goalInputRef.current.value);
+        setGoal(goalInputRef.current.value);
+    }
+
+    useEffect(() => {
+        const stopListening = db
+            .collection("users/gwmg2hLSPUxzx3PKbj5r/logs")
+            .doc("h2vVRIIuNyr65vgZCe2Y")
+            .onSnapshot(snapshot => {
+                console.log("new activity data");
+                let timeX = []
+                let timeY = []
+                snapshot.data().minutely.forEach((value, idx) => {
+                    timeY.push((60*idx-value)/3600)
+                });
+                for (let i=0; i<timeY.length; i++){
+                    timeX.push(formatTime(i/60))
+                }
+                setSittingX(timeX);
+                setSittingY(timeY);
+
+                timeX = []
+                timeY = []
+                snapshot.data().standFreq.forEach((value, idx) => {
+                    timeX.push(formatTime(idx))
+                    timeY.push(value)
+                });
+                setStandupsX(timeX);
+                setStandupsY(timeY);
+            })
+
+        return () => {
+            stopListening();
+            console.log("done");
+        }
+
+    }, [db]);
+
     return (
         <div className="bg-gray-100 rounded-lg py-8 px-10 mb-6">
 
@@ -10,7 +65,16 @@ const ActivityGraph = (props) => {
 
                 <div className="flex space-x-4 items-baseline">
                     <h1 className="text-xl font-semibold">{props.title}</h1>
-                    <Link className="text-gray-600 hover:text-indigo-500 text-sm">Edit Goal</Link>
+                    <span className="text-sm">
+                        <label>Goal: </label>
+                        <input
+                            className="text-gray-600 bg-gray-100 focus:bg-white focus:outline-none text-sm w-12"
+                            type="number"
+                            defaultValue={goal}
+                            ref={goalInputRef}
+                            onBlur={handleUpdateGoal}
+                        />
+                    </span>
                 </div>
 
                 <div className="flex items-center space-x-6">
@@ -23,24 +87,25 @@ const ActivityGraph = (props) => {
             </div>
             
             {(props.type == "line") ? 
-            <Plot 
+            <Plot
                 data={[
                     {
-                        x: [1, 2, 3],
-                        y: [0, 0.5, 1.5],
+                        x: sittingX,
+                        y: sittingY,
                         type: 'scatter',
                         mode: 'lines+markers',
-                        marker: {color: 'rgb(99, 102, 241)', size: 12},
+                        marker: {color: 'rgb(99, 102, 241)', size: 4},
                     }]}
                 layout={{
-                    width: 1470, 
+                    width: 1300,
                     autosize: true,
                     xaxis: {
                         title: 'Time of Day',
+                        tickvals: standupsX,
                         titlefont: {
-                        family: 'Inter, sans-serif',
-                        size: 18,
-                        color: 'black'
+                            family: 'Inter, sans-serif',
+                            size: 18,
+                            color: 'black',
                     }},
                     yaxis: {
                         title: 'Number of Hours',
@@ -48,20 +113,35 @@ const ActivityGraph = (props) => {
                         family: 'Inter, sans-serif',
                         size: 18,
                         color: 'black'
-                    }}
+                    }},
+                    shapes: [{
+                        type: 'line',
+                        x0: 0,
+                        y0: goal,
+                        x1: 1440,
+                        y1: goal,
+                        line: {
+                            color: 'green',
+                            width: 1
+                        }
+                    }]
+
                 }}
+                useResizeHandler
+                style={{ width: '100%', height: '100%' }}
+
             />
             :
-            <Plot 
+            <Plot
                 data={[
                     {
-                        x: [1, 2, 3],
-                        y: [1, 4, 2],
+                        x: standupsX,
+                        y: standupsY,
                         type: 'bar',
                         marker: {color: 'rgb(99, 102, 241)'}
                     }]}
                 layout={{
-                    width: 1470, 
+                    width: 1300,
                     autosize: true,
                     xaxis: {
                         title: 'Time of Day',
@@ -78,6 +158,8 @@ const ActivityGraph = (props) => {
                         color: 'black'
                     }}
                 }}
+                useResizeHandler
+                style={{ width: '100%', height: '100%' }}
             />
             }
 

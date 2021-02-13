@@ -407,12 +407,17 @@ def video_feed():
 		mimetype = "multipart/x-mixed-replace; boundary=frame")
 
 if __name__ == '__main__':
-	# start a thread that will perform motion detection
-	t = threading.Thread(target=start_monitor)
-	t.daemon = True
-	t.start()
-	# start the flask app
-	app.run(debug=True, threaded=True, use_reloader=False)
+    # start a thread that will perform motion detection
+    t = threading.Thread(target=start_monitor)
+    t.daemon = True
+    analytics = threading.Thread(target=minute_updates)
+    analytics.daemon = True
+
+    t.start()
+    analytics.start()
+
+    # start the flask app
+    app.run(debug=True, threaded=True, use_reloader=False)
 
 # release the video stream pointer
 vs.stop()

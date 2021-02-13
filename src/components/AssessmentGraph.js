@@ -1,8 +1,51 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { Link } from 'react-router-dom';
 import Plot from 'react-plotly.js';
+import {db} from "../firebase";
+var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 const AssessmentGraph = (props) => {
+    const [tupGo, setTupGo] = useState({
+        'x': [],
+        'y': []
+    });
+    const [chairStand, setChairStand] = useState({
+        'x': [],
+        'y': []
+    });
+    useEffect(() => {
+        const stopListening = db
+            .collection("users/gwmg2hLSPUxzx3PKbj5r/logs")
+            .doc("h2vVRIIuNyr65vgZCe2Y")
+            .onSnapshot(snapshot => {
+                console.log("new activity data");
+                let tupGo = {
+                    'x': [],
+                    'y': []
+                };
+                snapshot.data().tupGo.forEach((value, idx) => {
+                    tupGo.x.push(days[idx])
+                    tupGo.y.push(value)
+                });
+                setTupGo(tupGo)
+
+                let chair = {
+                    'x': [],
+                    'y': []
+                };
+                snapshot.data().chairStand.forEach((value, idx) => {
+                    chair.x.push(days[idx])
+                    chair.y.push(value)
+                });
+                setChairStand(chair)
+            })
+
+        return () => {
+            stopListening();
+            console.log("done");
+        }
+
+    }, [db]);
     return (
         <div className="bg-gray-100 rounded-lg py-8 px-10 mb-6">
 
@@ -20,12 +63,13 @@ const AssessmentGraph = (props) => {
                 </div>
 
             </div>
-            
+            {
+                props.title === "Timed Up-and-Go Test" ?
             <Plot 
                 data={[
                     {
-                        x: [1, 2, 3],
-                        y: [1, 4, 2],
+                        x: tupGo.x,
+                        y: tupGo.y,
                         type: 'bar',
                         marker: {color: 'rgb(99, 102, 241)'}
                     }]}
@@ -33,14 +77,14 @@ const AssessmentGraph = (props) => {
                     width: 1470, 
                     autosize: true,
                     xaxis: {
-                        title: 'x',
+                        title: 'Weekday',
                         titlefont: {
                         family: 'Inter, sans-serif',
                         size: 18,
                         color: 'black'
                     }},
                     yaxis: {
-                        title: 'y',
+                        title: 'Average Score',
                         titlefont: {
                         family: 'Inter, sans-serif',
                         size: 18,
@@ -48,6 +92,35 @@ const AssessmentGraph = (props) => {
                     }}
                 }}
             />
+            :
+            <Plot 
+                data={[
+                    {
+                        x: chairStand.x,
+                        y: chairStand.y,
+                        type: 'bar',
+                        marker: {color: 'rgb(99, 102, 241)'}
+                    }]}
+                layout={{
+                    width: 1470, 
+                    autosize: true,
+                    xaxis: {
+                        title: 'Weekday',
+                        titlefont: {
+                        family: 'Inter, sans-serif',
+                        size: 18,
+                        color: 'black'
+                    }},
+                    yaxis: {
+                        title: 'Average Score',
+                        titlefont: {
+                        family: 'Inter, sans-serif',
+                        size: 18,
+                        color: 'black'
+                    }}
+                }}
+            />
+            }
 
         </div>
     )
