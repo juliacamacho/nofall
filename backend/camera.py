@@ -99,18 +99,24 @@ prevStatus = "unknown"
 startingPos = (-1,-1)
 endingPos = (-1,-1)
 
+changes=0 #stores number of changes for task 1
 
+recordCounter = 0 #records number of frames the vid recorder is recording
 def startTest(num): #num is test num
     global isTesting
     global vid_writer
     global testNum
     global testCounter
     testCounter=0
-    vid_writer = cv2.VideoWriter("output2.avi",cv2.VideoWriter_fourcc('M','J','P','G'), 15, (640,640))
+    vid_writer = cv2.VideoWriter("output_server_2.avi",cv2.VideoWriter_fourcc('M','J','P','G'), 15, (640,640))
     isTesting = True
     testNum = num
     global speedCounter
     speedCounter=0
+    global changes
+    changes=0
+    global recordCounter
+    recordCounter=0
 
 def endTest():
     global isTesting
@@ -143,49 +149,55 @@ def tempUpdate(taskNum, score):
     print("Tasknum: ",taskNum)
     print("Score: ",score)
 
-def task1_analysis():
+def task1_analysis(status):
     global test_cache
-    if len(test_cache) == 30*frameRate:#code to analyze the test_cache for evidence of task completion
+    global changes
+    global recordCounter
+    if status!="moving":# and status!="falling":
+        test_cache.append(status)
+        if len(test_cache)>=2 and (test_cache[len(test_cache)-2]=="standing" and status=="sitting") or (test_cache[len(test_cache)-2]=="sitting" and status=="standing"):
+            changes+=1
+            print(changes)
+    if changes>=26:
         endTest()
-        changes = 0
-        test_cache[:]=[x for x in test_cache if x != "moving"] #remove these instances bc it might detect moving while standing up
-        for i in range(len(test_cache)-1):
-            if (test_cache[i]=="standing" and test_cache[i+1]=="sitting") or (test_cache[i]=="sitting" and test_cache[i+1]=="standing"):
-                changes+=1
-        if changes>=26: #this is equivalent to 13 sitting downs, this means low risk
-            tempUpdate(1,"Low risk")
-        else:
-            tempUpdate(1,"High risk")
+        tempUpdate(1,100) #low risk, score of 100
+    if recordCounter == 30*frameRate:#code to analyze the test_cache for evidence of task completion
+        endTest()
+        tempUpdate(1,changes*4) #higher risk, score decreases linearly
         # sit up and sit down repeatedly
+    
 
-def task2_analysis(speed):
+def task2_analysis(status,speed):
     global speedCounter
     global test_cache
+    global recordCounter
+    #test_cache.append(status)
     speedCounter+=speed
+    print(speedCounter)
     if speedCounter>=speedThresh:
-        length = len(test_cache)
-        timeTaken = length/frameRate
-        if timeTaken<=12:
-            tempUpdate(2,"Low risk")
-        else:
-            tempUpdate(2,"High risk")
+        endTest()
+        tempUpdate(2,100)#low risk
+    if recordCounter>=12*frameRate:
+        endTest()
+        tempUpdate(2,speedCounter/speedThresh*100)#higher risk, 
 
 def test_cache_add(status, image, speed):
     global testNum
-    if status=="falling" or status=="fallen":
+    if status=="fallen":
         tempUpdate(testNum,"High risk")
         global isTesting
         isTesting=False
         return;
-    global test_cache
-    test_cache.append(status)
+    
     global vid_writer
     vid_writer.write(image)
-    
+    global recordCounter
+    recordCounter+=1
+    # print(recordCounter)
     if testNum==1:
-        task1_analysis()
+        task1_analysis(status)
     if testNum==2:
-        task2_analysis(speed)        
+        task2_analysis(status,speed)        
             
 def add_position(tup):
     global position_cache
@@ -266,7 +278,7 @@ def analyze_frames(image):
     fontScale = 1
     
     # Blue color in BGR 
-    color = (255, 0, 0) 
+    color = (0, 0, 255) 
     
     # Line thickness of 2 px 
     thickness = 2
@@ -286,13 +298,15 @@ def analyze_frames(image):
                     fontScale, color, thickness, cv2.LINE_AA)
     '''
     status =""
+    '''
     if vec[1]>3:
         #In the act of falling
         # image = cv2.putText(image, "Falling", (20,120), font,  
         #             fontScale, color, thickness, cv2.LINE_AA)
         status="falling"
         cache(status)
-    elif abs(vec[0])>2:# Ideally the speed should be normalized to some reference, like the distance between the eyes (but this changes with rotation too). Also this doesn't work with frontal walking, only side walking. In fact frontal walking will be detected as falling
+    '''
+    if abs(vec[0])>2:# Ideally the speed should be normalized to some reference, like the distance between the eyes (but this changes with rotation too). Also this doesn't work with frontal walking, only side walking. In fact frontal walking will be detected as falling
         #walking/moving
         # image = cv2.putText(image, "Moving", (20,80), font,  
         #             fontScale, color, thickness, cv2.LINE_AA)
@@ -369,7 +383,8 @@ def start_monitor():
             # if allSame():
             #     unknown_status()
             if allSame():
-                prevStatus = status
+                global prevStatus
+                prevStatus = "unknown"
             with lock:
                 outputFrame = image.copy()
             continue
@@ -405,6 +420,14 @@ def video_feed():
 	# type (mime type)
 	return Response(generate(),
 		mimetype = "multipart/x-mixed-replace; boundary=frame")
+
+@app.route("/start_task1")
+def start_task1():
+    return 'Success'
+
+@app.route("/start_task2")
+def start_task2():
+    return 'Success'
 
 if __name__ == '__main__':
     # start a thread that will perform motion detection
