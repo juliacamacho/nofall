@@ -24,7 +24,7 @@ from flask import Flask
 from flask import Response
 import threading
 from collections import deque
-# from api import *
+from api import *
 
 
 
@@ -303,22 +303,22 @@ def analyze_frames(image):
         #             fontScale, color, thickness, cv2.LINE_AA)
         status="fallen"
         cache(status)
-        # if allSame():
-        #     start_fall()
+        if allSame():
+            start_fall()
     elif ratio<0.5 or (l_leg_angle<60 and r_leg_angle<60):
         # image = cv2.putText(image, "Sitting down", (20,50), font,  
         #             fontScale, color, thickness, cv2.LINE_AA)
         status="sitting"
         cache(status)
-        # if allSame():
-        #     start_sit()
+        if allSame():
+            start_sit()
     else:
         # image = cv2.putText(image, "Standing up", (20,50), font,  
         #             fontScale, color, thickness, cv2.LINE_AA)
         status="standing"
         cache(status)
-        # if allSame():
-        #     start_stand()
+        if allSame():
+            start_stand()
     
     global prevStatus
     if allSame():
@@ -366,10 +366,10 @@ def start_monitor():
         if image1 is None:
             cache("unknown")
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            # if allSame():
-            #     unknown_status()
             if allSame():
-                prevStatus = status
+                unknown_status()
+            # if allSame():
+            #     prevStatus = status
             with lock:
                 outputFrame = image.copy()
             continue

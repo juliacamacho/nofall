@@ -130,7 +130,7 @@ def minute_updates():
         hr = int(i/60)
         stood_history[hr] += min_times_stood
 
-        logs_ref.document('LYFQJFgzO0vsij7DBXqy').update({
+        logs_ref.document('C1pEhyGu7iflHabRs3Qm').update({
             u'minutely': minutely_history,
             u'standFreq': stood_history,
         })
