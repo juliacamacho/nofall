@@ -13,7 +13,7 @@ import mediapipe as mp
 from imutils.video import FileVideoStream
 import imutils
 import numpy as np
-from camera import analyze_frames
+from camera import *
 
 
 mp_drawing = mp.solutions.drawing_utils
@@ -72,7 +72,7 @@ def _normalized_to_pixel_coordinates(
 pose = mp_pose.Pose(
     min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
-fvs = FileVideoStream("VID_20210213_100011_Trim.mp4").start()
+fvs = FileVideoStream("VID_20210213_141608.mp4").start()
 image = fvs.read()
 
 if image.shape[1]<image.shape[0]: #width is smaller than height
@@ -88,10 +88,10 @@ frameHeight = image.shape[0]
 
 aspect_ratio = frameWidth/frameHeight
 
-vid_writer = cv2.VideoWriter("output3.avi",cv2.VideoWriter_fourcc('M','J','P','G'), 15, (image.shape[1],image.shape[0]))
+vid_writer = cv2.VideoWriter("output_task2.avi",cv2.VideoWriter_fourcc('M','J','P','G'), 15, (image.shape[1],image.shape[0]))
 
 idx_to_coordinates = {}
-  
+startTest(2)
 while fvs.more():
   image = fvs.read()
   if image is None:

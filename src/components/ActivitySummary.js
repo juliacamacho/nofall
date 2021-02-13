@@ -12,7 +12,7 @@ const ActivitySummary = (props) => {
                 {/* <h1 className="text-6xl font-semibold">{props.userInfo.score}/100</h1> */}
                 <CircularProgressbar 
                     value={props.score} 
-                    text={`${props.score}%`} 
+                    text={`${props.score.toFixed(1)}%`}
                     styles={buildStyles({
                         pathColor: '#6366f1',
                         textColor: '#6366f1',
