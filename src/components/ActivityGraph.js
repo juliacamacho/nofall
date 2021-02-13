@@ -1,8 +1,40 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { Link } from 'react-router-dom';
 import Plot from 'react-plotly.js';
+import {db} from "../firebase";
 
 const ActivityGraph = (props) => {
+
+    const [sittingX, setSittingX] = useState([]);
+    const [sittingY, setSittingY] = useState([]);
+    const [standupsX, setStandupsX] = useState([]);
+    const [standupsY, setStandupsY] = useState([]);
+
+    useEffect(() => {
+        const stopListening = db
+            .collection("users/gwmg2hLSPUxzx3PKbj5r/logs")
+            .doc("h2vVRIIuNyr65vgZCe2Y")
+            .onSnapshot(snapshot => {
+                console.log("new activity data");
+                let timeX = []
+                let timeY = []
+                snapshot.data().minutely.forEach((value) => {
+                    timeY.push(value/3600)
+                });
+                for (let i=1; i<=timeY.length; i++){
+                    timeX.push(i/60)
+                }
+                setSittingX(timeX);
+                setSittingY(timeY);
+            })
+
+        return () => {
+            stopListening();
+            console.log("done");
+        }
+
+    }, [db]);
+
     return (
         <div className="bg-gray-100 rounded-lg py-8 px-10 mb-6">
 
@@ -26,17 +58,17 @@ const ActivityGraph = (props) => {
             <Plot 
                 data={[
                     {
-                        x: [1, 2, 3],
-                        y: [0, 0.5, 1.5],
+                        x: sittingX,
+                        y: sittingY,
                         type: 'scatter',
                         mode: 'lines+markers',
-                        marker: {color: 'rgb(99, 102, 241)', size: 12},
+                        marker: {color: 'rgb(99, 102, 241)', size: 4},
                     }]}
                 layout={{
                     width: 1470, 
                     autosize: true,
                     xaxis: {
-                        title: 'Time of Day',
+                        title: 'Number of Hours',
                         titlefont: {
                         family: 'Inter, sans-serif',
                         size: 18,
