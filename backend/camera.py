@@ -91,7 +91,7 @@ position_cache = (-1,-1)
 isTesting = False #test 2 is to ask user to sit down, stand up, and walk for 20 seconds, test 1 is to ask the user to sit down and stand up for 20 seconds
 testNum = -1 # This stores test 1 or test 2
 frameRate = 30
-speedThresh = 3*5*frameRate
+speedThresh = 3*10*frameRate
 speedCounter=0 #once this counter reaches X, the user has walked enough (10 m) and we can stop the timer
 test_cache = [] # max size will be 20*framerate, stores past 20 seconds statuses
 prevStatus = "unknown"
@@ -108,7 +108,7 @@ def startTest(num): #num is test num
     global testNum
     global testCounter
     testCounter=0
-    vid_writer = cv2.VideoWriter("output_server_2.avi",cv2.VideoWriter_fourcc('M','J','P','G'), 15, (640,640))
+    vid_writer = cv2.VideoWriter("output_server2.avi",cv2.VideoWriter_fourcc('M','J','P','G'), 15, (640,640))
     isTesting = True
     testNum = num
     global speedCounter
@@ -149,7 +149,7 @@ def tempUpdate(taskNum, score):
     print("Tasknum: ",taskNum)
     print("Score: ",score)
 
-def task1_analysis(status):
+def task1_analysis(status,image):
     global test_cache
     global changes
     global recordCounter
@@ -158,28 +158,43 @@ def task1_analysis(status):
         if len(test_cache)>=2 and (test_cache[len(test_cache)-2]=="standing" and status=="sitting") or (test_cache[len(test_cache)-2]=="sitting" and status=="standing"):
             changes+=1
             print(changes)
+    score = changes*4
     if changes>=26:
         endTest()
-        tempUpdate(1,100) #low risk, score of 100
+        score=100
+        tempUpdate(1,score) #low risk, score of 100
+        
+    image = cv2.putText(image, "Score: "+str(score), (20,80), cv2.FONT_HERSHEY_SIMPLEX ,  
+                    1, (0,0,255), 1, cv2.LINE_AA)
     if recordCounter == 30*frameRate:#code to analyze the test_cache for evidence of task completion
         endTest()
-        tempUpdate(1,changes*4) #higher risk, score decreases linearly
+        tempUpdate(1,score) #higher risk, score decreases linearly
         # sit up and sit down repeatedly
-    
+    return image
 
-def task2_analysis(status,speed):
+def task2_analysis(speed,image):
     global speedCounter
     global test_cache
     global recordCounter
     #test_cache.append(status)
     speedCounter+=speed
     print(speedCounter)
+    score = speedCounter/speedThresh*100
+    
     if speedCounter>=speedThresh:
         endTest()
-        tempUpdate(2,100)#low risk
+        score=100
+        tempUpdate(2,score)#low risk
+        image = cv2.putText(image, "Score: "+str(score), (20,80), cv2.FONT_HERSHEY_SIMPLEX ,  
+                    1, (0,0,255), 1, cv2.LINE_AA)
+    image = cv2.putText(image, "Score: "+str(score), (20,80), cv2.FONT_HERSHEY_SIMPLEX ,  
+                    1, (0,0,255), 1, cv2.LINE_AA)
     if recordCounter>=12*frameRate:
         endTest()
-        tempUpdate(2,speedCounter/speedThresh*100)#higher risk, 
+        
+        tempUpdate(2,score)#higher risk, 
+        
+    return image
 
 def test_cache_add(status, image, speed):
     global testNum
@@ -189,15 +204,17 @@ def test_cache_add(status, image, speed):
         isTesting=False
         return;
     
-    global vid_writer
-    vid_writer.write(image)
+    
     global recordCounter
     recordCounter+=1
     # print(recordCounter)
     if testNum==1:
-        task1_analysis(status)
+        image = task1_analysis(status,image)
     if testNum==2:
-        task2_analysis(status,speed)        
+        image = task2_analysis(speed,image)     
+    
+    global vid_writer
+    vid_writer.write(image)
             
 def add_position(tup):
     global position_cache
@@ -351,7 +368,7 @@ def analyze_frames(image):
         if testCounter>=3*frameRate and speed<25: #assuming the person moves within 3 seconds
             endingPos = cm
         '''
-        test_cache_add(prevStatus,image, speed)
+        image = test_cache_add(prevStatus,image, speed)
         # testCounter+=1
     
     return image
