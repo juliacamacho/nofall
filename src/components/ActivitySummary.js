@@ -5,11 +5,11 @@ const ActivitySummary = (props) => {
     return ( 
         <div className="bg-indigo-50 rounded-lg py-8 px-10 flex space-x-20 items-center mb-6">
             
-            <div>
+            <div className="w-1/6">
                 <h1 className="text-xl font-semibold pb-4">Overall Score:</h1>
                 <h1 className="text-6xl font-semibold">85/100</h1>
             </div>
-            <div>
+            <div className="w-1/4">
                 <h1 className="text-xl font-semibold pb-4">Current Action:</h1>
                 <h1 className="text-6xl font-semibold">{props.userInfo?.status}</h1>
             </div>
