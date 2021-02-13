@@ -25,14 +25,28 @@ const AssessmentGraph = (props) => {
                 data={[
                     {
                         x: [1, 2, 3],
-                        y: [2, 6, 3],
-                        type: 'scatter',
-                        mode: 'lines+markers',
-                        marker: {color: 'red'},
-                    },
-                    {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
-                    ]}
-                    layout={{width: 1470, autosize: true, title: 'A Fancy Plot'}}
+                        y: [1, 4, 2],
+                        type: 'bar',
+                        marker: {color: 'rgb(99, 102, 241)'}
+                    }]}
+                layout={{
+                    width: 1470, 
+                    autosize: true,
+                    xaxis: {
+                        title: 'x',
+                        titlefont: {
+                        family: 'Inter, sans-serif',
+                        size: 18,
+                        color: 'black'
+                    }},
+                    yaxis: {
+                        title: 'y',
+                        titlefont: {
+                        family: 'Inter, sans-serif',
+                        size: 18,
+                        color: 'black'
+                    }}
+                }}
             />
 
         </div>
