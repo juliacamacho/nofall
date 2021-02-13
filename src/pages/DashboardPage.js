@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { Link } from 'react-router-dom';
 
 import Navbar from "../components/Navbar";
@@ -7,8 +7,27 @@ import ActivityGraph from '../components/ActivityGraph'
 import ActivitySummary from '../components/ActivitySummary'
 import ActivityCard from '../components/ActivityCard'
 import AssessmentGraph from '../components/AssessmentGraph'
+import {db} from "../firebase";
 
 const DashboardPage = () => {
+    const [userInfo, setUserInfo] = useState({});
+
+    useEffect(() => {
+        const stopListening = db
+            .collection("users")
+            .doc("gwmg2hLSPUxzx3PKbj5r")
+            .onSnapshot(snapshot => {
+                console.log("[DashboardPage.js] data updated");
+                setUserInfo(snapshot.data());
+                console.log(snapshot.data());
+            });
+
+        return () => {
+            stopListening();
+            console.log("done");
+        }
+    }, [db]);
+
     return (
         <>
             <Navbar/>
@@ -17,7 +36,7 @@ const DashboardPage = () => {
             <div className="px-16 pb-8">
 
                 <h1 className="text-2xl font-bold mb-6">Ambient Activity Report</h1>
-                <ActivitySummary />
+                <ActivitySummary userInfo={userInfo}/>
                 <ActivityGraph title="Time Spent Sitting/Lying Down" type="line"/>
                 <ActivityGraph title="Frequency of Stand-ups" type="bar"/>
                 <div className="grid grid-cols-3 gap-x-4">
