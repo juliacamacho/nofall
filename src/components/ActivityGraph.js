@@ -112,7 +112,7 @@ const ActivityGraph = (props) => {
                 layout={{
                     autosize: true,
                     xaxis: {
-                        title: 'Number of Hours',
+                        title: 'Time of Day',
                         tickvals: standupsX,
                         titlefont: {
                             family: 'Inter, sans-serif',
