@@ -44,7 +44,6 @@ const DashboardPage = () => {
 
     const updateScore = (value, type) => {
         let score = 0;
-        console.log("Got score", value, type);
         if (type == "active") {
             activeScore = value;
         }
@@ -56,7 +55,6 @@ const DashboardPage = () => {
         }
         score = (activeScore + standScore)/2;
         setOverallScore(score);
-        console.log('overallScore:', overallScore)
     }
 
     return (

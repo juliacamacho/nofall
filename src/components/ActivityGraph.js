@@ -4,6 +4,11 @@ import Plot from 'react-plotly.js';
 import {db} from "../firebase";
 // import d3 from "d3-time-format"
 
+const timeVals = [
+    "0:00", "1:00", "2:00", "3:00", "4:00", "5:00", "6:00", "7:00", "8:00", "9:00", "10:00", "11:00",
+    "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00",
+]
+
 function formatTime(t) {
     return `${t}:00`
 }
@@ -11,27 +16,60 @@ function formatTime(t) {
 
 const ActivityGraph = (props) => {
 
-    const [sittingX, setSittingX] = useState([]);
-    const [sittingY, setSittingY] = useState([]);
-    const [standupsX, setStandupsX] = useState([]);
-    const [standupsY, setStandupsY] = useState([]);
+    const [xAxisData, setXAxisData] = useState([]);
+    const [yAxisData, setYAxisData] = useState([]);
 
     const [goal, setGoal] = useState(10);
     const [score, setScore] = useState(0);
     let goalInputRef = React.createRef();
 
     const handleUpdateGoal = () => {
-        console.log(goalInputRef.current.value);
-        setGoal(goalInputRef.current.value);
+        const localGoal = Math.min(Math.max(goalInputRef.current.value, 0), 99);
+        goalInputRef.current.value = localGoal; // set it back in case of out of bounds
+        setGoal(localGoal);
+
+        updateScore(xAxisData, yAxisData, localGoal);
+
         // also save goal to firestore
         db.collection("users")
             .doc("gwmg2hLSPUxzx3PKbj5r")
             .set({
-                goalConfig: {[props.title]: goalInputRef.current.value}
+                goalConfig: {[props.title]: localGoal}
             }, {merge: true});
     }
 
+    const updateScore = (xAxisData, yAxisData, goal) => {
+        let localScore;
+        if (props.type === 'line') {
+            if (goal == 0)
+                localScore = 100;
+            else
+                localScore = (yAxisData[yAxisData.length - 1]) / goal * 100;
+            props.updateScore(localScore, "active");
+        }
+        else {
+            let passed = 0
+            yAxisData.forEach((value) => {
+                if (value >= goal){
+                    passed++;
+                }
+            })
+            localScore = passed / xAxisData.length * 100;
+            props.updateScore(localScore, "stand");
+        }
+
+        setScore(localScore);
+    }
+
     useEffect(() => {
+        // set goals
+        let localGoal = goal;
+        if (props.userInfo && props.userInfo.goalConfig && props.userInfo.goalConfig[props.title]) {
+            localGoal = props.userInfo.goalConfig[props.title]; // fetch goal from userInfo
+            setGoal(localGoal); // set state var
+            goalInputRef.current.value = localGoal; // set input field value
+        }
+
         // fetch series data
         const stopListening = db
             .collection("users/gwmg2hLSPUxzx3PKbj5r/logs")
@@ -47,12 +85,10 @@ const ActivityGraph = (props) => {
                     for (let i=0; i<timeY.length; i++){
                         timeX.push(formatTime(i/60))
                     }
-                    setSittingX(timeX);
-                    setSittingY(timeY);
+                    setXAxisData(timeX);
+                    setYAxisData(timeY);
 
-                    let score1 = (timeY[timeY.length - 1]) / (props.userInfo.goalConfig["Time Spent Active"]) * 100
-                    props.updateScore(score1, "active");
-                    setScore(score1);
+                    updateScore(timeX, timeY, localGoal);
                 }
                 else {
                     let timeX = []
@@ -61,30 +97,15 @@ const ActivityGraph = (props) => {
                         timeX.push(formatTime(idx))
                         timeY.push(value)
                     });
-                    setStandupsX(timeX);
-                    setStandupsY(timeY);
+                    setXAxisData(timeX);
+                    setYAxisData(timeY);
 
-                    let passed = 0
-                    timeY.forEach((value) => {
-                        if (value >= props.userInfo.goalConfig["Frequency of Stand-ups"]){
-                            passed += 1
-                        }
-                    })
-                    let score2 = passed / timeX.length * 100
-                    props.updateScore(score2, "stand")
-                    setScore(score2);
+                    updateScore(timeX, timeY, localGoal);
                 }
             })
 
-        // set goals
-        if (props.userInfo && props.userInfo.goalConfig && props.userInfo.goalConfig[props.title]) {
-            setGoal(props.userInfo.goalConfig[props.title]);
-            goalInputRef.current.value = props.userInfo.goalConfig[props.title];
-        }
-
         return () => {
             stopListening();
-            console.log("done");
         }
 
     }, [db]);
@@ -99,9 +120,11 @@ const ActivityGraph = (props) => {
                     <span className="text-sm">
                         <label>Goal: </label>
                         <input
-                            className="text-gray-600 bg-gray-100 focus:bg-white focus:outline-none text-sm w-12"
+                            className="text-gray-600 bg-gray-100 focus:bg-white focus:outline-none text-sm w-8"
                             type="number"
                             defaultValue={goal}
+                            min="0"
+                            max="99"
                             ref={goalInputRef}
                             onBlur={handleUpdateGoal}
                         />
@@ -122,8 +145,8 @@ const ActivityGraph = (props) => {
             <Plot
                 data={[
                     {
-                        x: sittingX,
-                        y: sittingY,
+                        x: xAxisData,
+                        y: yAxisData,
                         type: 'scatter',
                         mode: 'lines+markers',
                         marker: {color: 'rgb(99, 102, 241)', size: 4},
@@ -132,7 +155,7 @@ const ActivityGraph = (props) => {
                     autosize: true,
                     xaxis: {
                         title: 'Time of Day',
-                        tickvals: standupsX,
+                        tickvals: timeVals,
                         titlefont: {
                             family: 'Inter, sans-serif',
                             size: 18,
@@ -140,7 +163,7 @@ const ActivityGraph = (props) => {
                     }},
                     yaxis: {
                         title: 'Number of Hours',
-                        range: [0,Math.max(goal, ...sittingY)*1.1],
+                        range: [0,Math.max(goal, ...yAxisData)*1.1],
                         titlefont: {
                         family: 'Inter, sans-serif',
                         size: 18,
@@ -151,8 +174,8 @@ const ActivityGraph = (props) => {
                             type: 'rect',
                             x0: 0,
                             y0: goal,
-                            x1: sittingX.length,
-                            y1: Math.max(goal, ...sittingY)*1.1,
+                            x1: xAxisData.length,
+                            y1: Math.max(goal, ...yAxisData)*1.1,
                             fillcolor: 'green',
                             opacity: 0.1,
                             line: {width: 0}
@@ -161,7 +184,7 @@ const ActivityGraph = (props) => {
                             type: 'line',
                             x0: 0,
                             y0: goal,
-                            x1: sittingX.length,
+                            x1: xAxisData.length,
                             y1: goal,
                             line: {
                                 color: 'green',
@@ -179,8 +202,8 @@ const ActivityGraph = (props) => {
             <Plot
                 data={[
                     {
-                        x: standupsX,
-                        y: standupsY,
+                        x: xAxisData,
+                        y: yAxisData,
                         type: 'bar',
                         marker: {color: 'rgb(99, 102, 241)'}
                     }]}
@@ -195,7 +218,7 @@ const ActivityGraph = (props) => {
                     }},
                     yaxis: {
                         title: 'Number of Stand-ups',
-                        range: [0,Math.max(goal, ...standupsY)*1.1],
+                        range: [0,Math.max(goal, ...yAxisData)*1.1],
                         titlefont: {
                         family: 'Inter, sans-serif',
                         size: 18,
@@ -206,8 +229,8 @@ const ActivityGraph = (props) => {
                             type: 'rect',
                             x0: -0.5,
                             y0: goal,
-                            x1: standupsX.length,
-                            y1: Math.max(goal, ...standupsY)*1.1,
+                            x1: xAxisData.length,
+                            y1: Math.max(goal, ...yAxisData)*1.1,
                             fillcolor: 'green',
                             opacity: 0.1,
                             line: {width: 0}
@@ -216,7 +239,7 @@ const ActivityGraph = (props) => {
                             type: 'line',
                             x0: -0.5,
                             y0: goal,
-                            x1: standupsX.length,
+                            x1: xAxisData.length,
                             y1: goal,
                             line: {
                                 color: 'green',
