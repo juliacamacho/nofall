@@ -24,7 +24,9 @@ from flask import Flask
 from flask import Response
 import threading
 from collections import deque
-from api import *
+# from api import *
+
+
 
 NOSE = 0
 RIGHT_EYE_INNER = 1
@@ -84,9 +86,43 @@ time.sleep(2.0)
 
 
 idx_to_coordinates = {}
-history_cache = deque([])              # max size will be 20, stores past 20 statuses
+history_cache = deque([])              # max size will be 20, stores past 20 frame statuses
+position_cache = (-1,-1)
+isTesting = False #test 2 is to ask user to sit down, stand up, and walk for 20 seconds, test 1 is to ask the user to sit down and stand up for 20 seconds
+testNum = -1 # This stores test 1 or test 2
+frameRate = 30
+speedThresh = 3*5*frameRate
+speedCounter=0 #once this counter reaches X, the user has walked enough (10 m) and we can stop the timer
+test_cache = [] # max size will be 20*framerate, stores past 20 seconds statuses
+prevStatus = "unknown"
 
-def allSame():
+startingPos = (-1,-1)
+endingPos = (-1,-1)
+
+
+def startTest(num): #num is test num
+    global isTesting
+    global vid_writer
+    global testNum
+    global testCounter
+    testCounter=0
+    vid_writer = cv2.VideoWriter("output2.avi",cv2.VideoWriter_fourcc('M','J','P','G'), 15, (640,640))
+    isTesting = True
+    testNum = num
+    global speedCounter
+    speedCounter=0
+
+def endTest():
+    global isTesting
+    global vid_writer
+    global test_cache
+    global testCounter
+    testCounter=0
+    vid_writer.release()
+    test_cache = []
+    isTesting = False
+    
+def allSame(): # analyze the past 20 frames
     global history_cache
     prev = None
     for status in history_cache:
@@ -98,15 +134,64 @@ def allSame():
 
 def cache(status):
     global history_cache
-
     history_cache.append(status)
-    if len(history_cache) == 20:
+    if len(history_cache) == 5:
         history_cache.popleft()
             
+        
+def tempUpdate(taskNum, score):
+    print("Tasknum: ",taskNum)
+    print("Score: ",score)
+
+def task1_analysis():
+    global test_cache
+    if len(test_cache) == 30*frameRate:#code to analyze the test_cache for evidence of task completion
+        endTest()
+        changes = 0
+        test_cache[:]=[x for x in test_cache if x != "moving"] #remove these instances bc it might detect moving while standing up
+        for i in range(len(test_cache)-1):
+            if (test_cache[i]=="standing" and test_cache[i+1]=="sitting") or (test_cache[i]=="sitting" and test_cache[i+1]=="standing"):
+                changes+=1
+        if changes>=26: #this is equivalent to 13 sitting downs, this means low risk
+            tempUpdate(1,"Low risk")
+        else:
+            tempUpdate(1,"High risk")
+        # sit up and sit down repeatedly
+
+def task2_analysis(speed):
+    global speedCounter
+    global test_cache
+    speedCounter+=speed
+    if speedCounter>=speedThresh:
+        length = len(test_cache)
+        timeTaken = length/frameRate
+        if timeTaken<=12:
+            tempUpdate(2,"Low risk")
+        else:
+            tempUpdate(2,"High risk")
+
+def test_cache_add(status, image, speed):
+    global testNum
+    if status=="falling" or status=="fallen":
+        tempUpdate(testNum,"High risk")
+        global isTesting
+        isTesting=False
+        return;
+    global test_cache
+    test_cache.append(status)
+    global vid_writer
+    vid_writer.write(image)
+    
+    if testNum==1:
+        task1_analysis()
+    if testNum==2:
+        task2_analysis(speed)        
+            
+def add_position(tup):
+    global position_cache
+    position_cache=tup
 
 def analyze_frames(image):
-    
-    
     # To improve performance, optionally mark the image as not writeable to
     # pass by reference.
     image.flags.writeable = False
@@ -144,7 +229,10 @@ def analyze_frames(image):
     if r_leg_vector[0]!=0:
         r_leg_angle = abs(180*np.arctan(r_leg_vector[1]/r_leg_vector[0])/math.pi)
     
-    #This will test lying down
+    #This will test lying down frontal
+    # compare dist btwn shoulder and knee to previous frames? This part doesn't matter too much
+    
+    #This will test lying down, where legs are angled
     knee_shoulder_vector = np.subtract(mid_shoulder,mid_knee)
     knee_shoulder_angle=90
     if knee_shoulder_vector[0]!=0:
@@ -154,8 +242,20 @@ def analyze_frames(image):
     if hip_shoulder_vector[0]!=0:
         hip_shoulder_angle = abs(180*np.arctan(hip_shoulder_vector[1]/hip_shoulder_vector[0])/math.pi)
     
+    #Determines center of torso, uses this for velocity determination
+    cm = np.divide(np.add(mid_shoulder,mid_hip),2)
+    global position_cache
+    vec = (-999,-999)
+    speed = -1
+    if position_cache[0]!=-1:
+        vec = (np.subtract(cm,position_cache))
+        speed = math.sqrt(sum(np.square(vec)))
+    add_position(cm)
+    
     mp_drawing.draw_landmarks(
         image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+    
+    
     # font 
     font = cv2.FONT_HERSHEY_SIMPLEX 
     
@@ -171,12 +271,11 @@ def analyze_frames(image):
     # Line thickness of 2 px 
     thickness = 2
     '''
-    image = cv2.circle(image, (int(mid_shoulder[0]),int(mid_shoulder[1])), 2, (255, 0, 0) , -1)
-    image = cv2.circle(image, (int(mid_hip[0]),int(mid_hip[1])), 2, (0, 255, 0) , -1)
-    image = cv2.circle(image, (int(mid_knee[0]),int(mid_knee[1])), 2, (0, 0, 255) , -1)
-    '''
-    image = cv2.putText(image, "Ratio: "+str(ratio), org, font,  
+    image = cv2.putText(image, "vel[1]: "+str(vec[1]), org, font,  
                     fontScale, color, thickness, cv2.LINE_AA)
+    image = cv2.putText(image, "Speed: "+str(speed), (20,500), font,  
+                    fontScale, color, thickness, cv2.LINE_AA)
+    
     image = cv2.putText(image, "L leg angle: "+str(l_leg_angle), (20,500), font,  
                     fontScale, color, thickness, cv2.LINE_AA)
     image = cv2.putText(image, "R leg angle: "+str(r_leg_angle), (20,530), font,  
@@ -185,24 +284,62 @@ def analyze_frames(image):
                     fontScale, color, thickness, cv2.LINE_AA)
     image = cv2.putText(image, "hip shoulder angle: "+str(hip_shoulder_angle), (20,590), font,  
                     fontScale, color, thickness, cv2.LINE_AA)
-    if knee_shoulder_angle<45 and hip_shoulder_angle<45:
-        image = cv2.putText(image, "Fallen over", (20,80), font,  
-                    fontScale, color, thickness, cv2.LINE_AA)
-        cache("fallen")
-        if allSame():
-            start_fall()
-    elif ratio<0.5 or l_leg_angle<60 or r_leg_angle<60:
-        image = cv2.putText(image, "Sitting down", (20,50), font,  
-                    fontScale, color, thickness, cv2.LINE_AA)
-        cache("sitting")
-        if allSame():
-            start_sit()
+    '''
+    status =""
+    if vec[1]>3:
+        #In the act of falling
+        # image = cv2.putText(image, "Falling", (20,120), font,  
+        #             fontScale, color, thickness, cv2.LINE_AA)
+        status="falling"
+        cache(status)
+    elif abs(vec[0])>2:# Ideally the speed should be normalized to some reference, like the distance between the eyes (but this changes with rotation too). Also this doesn't work with frontal walking, only side walking. In fact frontal walking will be detected as falling
+        #walking/moving
+        # image = cv2.putText(image, "Moving", (20,80), font,  
+        #             fontScale, color, thickness, cv2.LINE_AA)
+        status="moving"
+        cache(status)
+    elif knee_shoulder_angle<45 and hip_shoulder_angle<45:
+        # image = cv2.putText(image, "Fallen over", (20,80), font,  
+        #             fontScale, color, thickness, cv2.LINE_AA)
+        status="fallen"
+        cache(status)
+        # if allSame():
+        #     start_fall()
+    elif ratio<0.5 or (l_leg_angle<60 and r_leg_angle<60):
+        # image = cv2.putText(image, "Sitting down", (20,50), font,  
+        #             fontScale, color, thickness, cv2.LINE_AA)
+        status="sitting"
+        cache(status)
+        # if allSame():
+        #     start_sit()
     else:
-        image = cv2.putText(image, "Standing up", (20,50), font,  
-                    fontScale, color, thickness, cv2.LINE_AA)
-        cache("standing")
-        if allSame():
-            start_stand()
+        # image = cv2.putText(image, "Standing up", (20,50), font,  
+        #             fontScale, color, thickness, cv2.LINE_AA)
+        status="standing"
+        cache(status)
+        # if allSame():
+        #     start_stand()
+    
+    global prevStatus
+    if allSame():
+        prevStatus = status
+    
+    image = cv2.putText(image, prevStatus, (20,50), font,  
+             fontScale, color, thickness, cv2.LINE_AA)
+    
+    if isTesting:
+        '''
+        global startingPos
+        global endingPos
+        global testCounter
+        if testCounter==0:
+            startingPos = cm
+        if testCounter>=3*frameRate and speed<25: #assuming the person moves within 3 seconds
+            endingPos = cm
+        '''
+        test_cache_add(prevStatus,image, speed)
+        # testCounter+=1
+    
     return image
 
 def start_monitor(): 
@@ -229,8 +366,10 @@ def start_monitor():
         if image1 is None:
             cache("unknown")
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            # if allSame():
+            #     unknown_status()
             if allSame():
-                unknown_status()
+                prevStatus = status
             with lock:
                 outputFrame = image.copy()
             continue
