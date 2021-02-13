@@ -18,7 +18,6 @@ const AlertsPage = () => {
             .orderBy("timestamp", "desc")
             .get();
 
-        console.log(snapshot);
 
         if (!snapshot.empty) {
             let alerts = [[]];
@@ -35,10 +34,6 @@ const AlertsPage = () => {
             });
 
             setAlerts(alerts);
-
-            console.log(alerts)
-        } else {
-            console.log("No data");
         }
         setLoading(false);
     }, []);
@@ -56,12 +51,13 @@ const AlertsPage = () => {
                             const date = alertGroup[0].timestamp.toDate();
                             const dateStr = date.toLocaleDateString('en-US', dateStrOpt);
                             return (
-                                <div className="space-y-3">
+                                <div className="space-y-3" key={dateStr}>
                                     <span className="font-bold text-2xl">{dateStr}</span>
                                     {
                                         alertGroup.map((alert) => {
                                             return (
                                             <AlertCard
+                                                key={alert.timestamp.toMillis()}
                                                 type={alert.type}
                                                 message={alert.message}
                                                 timestamp={alert.timestamp.toMillis()}
