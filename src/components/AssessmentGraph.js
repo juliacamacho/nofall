@@ -62,7 +62,7 @@ const AssessmentGraph = (props) => {
                         chair.x.push(days[idx])
                         chair.y.push(value)
                     });
-                if(chairStand.y.length !== 0)
+                if(chair.y.length !== 0)
                     setChairStand(chair)
             })
 
