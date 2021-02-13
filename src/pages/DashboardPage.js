@@ -1,7 +1,10 @@
 import React from "react";
+import Navbar from "../components/Navbar";
 
 const DashboardPage = () => {
-    return (
+  return (
+      <>
+        <Navbar/>
         <div className="py-8 px-16">
 
             <h1 className="text-2xl font-bold">Ambient Activity Report</h1>
@@ -11,7 +14,8 @@ const DashboardPage = () => {
             </div>
 
         </div>
-    )
+      </>
+  )
 }
 
 export default DashboardPage;
