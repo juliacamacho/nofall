@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    .card {
+        @apply rounded-lg shadow-sm
+    }
+    .card-anim {
+        @apply card hover:shadow-md ease-in-out duration-500
+    }
+}

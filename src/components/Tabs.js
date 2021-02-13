@@ -6,18 +6,18 @@ export default function Tabs() {
     return (
         <div className="mb-8 py-2">
             <div className="px-16 py-6 flex space-x-10 text-gray-400 no-underline font-bold text-3xl">
-                <NavLink
-                    to={`/dashboard`}
+                <NavLink className="hover:text-black ease-in-out duration-100"
+                    to="/dashboard"
                     activeClassName="text-black"
                 >Dashboard
                 </NavLink>
-                <NavLink
-                    to={`/videos`}
+                <NavLink className="hover:text-black ease-in-out duration-100"
+                    to="/videos"
                     activeClassName="text-black"
                 >Video Streams
                 </NavLink>
-                <NavLink
-                    to={`/alerts`}
+                <NavLink className="hover:text-black ease-in-out duration-100"
+                    to="/alerts"
                     activeClassName="text-black"
                 >Alerts
                 </NavLink>
