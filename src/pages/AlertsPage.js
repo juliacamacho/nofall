@@ -18,10 +18,12 @@ const AlertsPage = () => {
             .orderBy("timestamp", "desc")
             .limit(100)
             .onSnapshot(snapshot => {
-                console.log("[AlertsPage.js] new data");
+                console.debug("[AlertsPage.js] new data");
                 let alerts = [[]];
                 let lastDate = (new Date()).toDateString();
+                let receivedData = false;
                 snapshot.forEach((event) => {
+                    receivedData = true;
                     const alert = event.data();
                     const dateStr = alert.timestamp.toDate().toDateString();
 
@@ -31,13 +33,17 @@ const AlertsPage = () => {
                     }
                     alerts[alerts.length - 1].push(alert);
                 });
-                setAlerts(alerts);
-                setLoading(false);
+                if (receivedData) {
+                    setAlerts(alerts);
+                    setLoading(false);
+                }
+                else {
+                    console.warn("[AlertsPage.js] no data received");
+                }
             });
 
         return () => {
             stopListening();
-            console.log("done");
         }
     }, [db]);
 

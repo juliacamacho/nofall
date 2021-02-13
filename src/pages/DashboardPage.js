@@ -18,15 +18,20 @@ const DashboardPage = () => {
             .collection("users")
             .doc("gwmg2hLSPUxzx3PKbj5r")
             .onSnapshot(snapshot => {
-                console.log("[DashboardPage.js] data updated");
-                setUserInfo(snapshot.data());
-                setLoading(false);
-                console.log(snapshot.data());
+                console.debug("[DashboardPage.js] data updated");
+                if (snapshot.exists) {
+                    setUserInfo(snapshot.data());
+                    setLoading(false);
+                    console.debug(snapshot.data());
+                }
+                else {
+                    console.warn("[DashboardPage.js] no data received");
+                }
+
             });
 
         return () => {
             stopListening();
-            console.log("done");
         }
     }, [db]);
 
