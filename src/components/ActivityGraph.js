@@ -48,6 +48,9 @@ const ActivityGraph = (props) => {
                 setSittingX(timeX);
                 setSittingY(timeY);
 
+                let score1 = (timeY[-1])/(props.userInfo.goalConfig["Time Spent Active"])
+                props.updateScore(score1, "active")
+
                 timeX = []
                 timeY = []
                 snapshot.data().standFreq.forEach((value, idx) => {
@@ -56,6 +59,16 @@ const ActivityGraph = (props) => {
                 });
                 setStandupsX(timeX);
                 setStandupsY(timeY);
+
+                let passed = 0
+                timeY.forEach((value) => {
+                    if (value >= props.userInfo.goalConfig["Frequency of Stand-ups"]){
+                        passed += 1
+                    }
+                })
+                let score2 = passed / timeX.length
+                props.updateScore(score2, "stand")
+
             })
 
         // set goals

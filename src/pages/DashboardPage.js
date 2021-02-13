@@ -12,6 +12,7 @@ import {db} from "../firebase";
 const logId = "LYFQJFgzO0vsij7DBXqy"
 
 const DashboardPage = () => {
+
     const [loading, setLoading] = useState(true);
     const [userInfo, setUserInfo] = useState({});
 
@@ -37,6 +38,25 @@ const DashboardPage = () => {
         }
     }, [db]);
 
+    const [overallScore, setOverallScore] = useState(0);
+    const [activeScore, setActiveScore] = useState(0);
+    const [standScore, setStandScore] = useState(0);
+
+    const updateScore = (value, type) => {
+        if (type == "active") {
+            setActiveScore(value)
+        }
+        else if (type == "stand") {
+            setStandScore(value)
+        }
+        else {
+            console.log("undefined type passed")
+        }
+        let score = (activeScore + standScore) / 2
+        setOverallScore(score);
+        console.log('overallScore:', overallScore)
+    }
+
     return (
         loading
             ?
@@ -52,9 +72,9 @@ const DashboardPage = () => {
                 <div className="px-16 pb-8">
 
                     <h1 className="text-2xl font-bold mb-6">Ambient Activity Report</h1>
-                    <ActivitySummary userInfo={userInfo} />
-                    <ActivityGraph title="Time Spent Active" type="line" logId={logId} userInfo={userInfo} />
-                    <ActivityGraph title="Frequency of Stand-ups" type="bar" logId={logId} userInfo={userInfo} />
+                    <ActivitySummary userInfo={userInfo} score={overallScore}/>
+                    <ActivityGraph title="Time Spent Active" type="line" logId={logId} userInfo={userInfo} updateScore={updateScore} />
+                    <ActivityGraph title="Frequency of Stand-ups" type="bar" logId={logId} userInfo={userInfo} updateScore={updateScore} />
                     <div className="grid grid-cols-3 gap-x-4">
                         <ActivityCard title="Average Walking Speed" yesterday={3} lastWeek={-4} lastMonth={-14}/>
                         <ActivityCard title="Average Sitting/Standing Speed" yesterday={3} lastWeek={-4}

@@ -1,5 +1,7 @@
 import React from "react";
 import { Link } from 'react-router-dom';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 const ActivitySummary = (props) => {
     return ( 
@@ -7,7 +9,16 @@ const ActivitySummary = (props) => {
             
             <div className="w-1/6">
                 <h1 className="text-xl font-semibold pb-4">Overall Score:</h1>
-                <h1 className="text-6xl font-semibold">{props.userInfo.score}/100</h1>
+                {/* <h1 className="text-6xl font-semibold">{props.userInfo.score}/100</h1> */}
+                <CircularProgressbar 
+                    value={props.score} 
+                    text={`${props.score}%`} 
+                    styles={buildStyles({
+                        pathColor: '#6366f1',
+                        textColor: '#6366f1',
+                        trailColor: '#e5e7eb',
+                    })}    
+                    />
             </div>
             <div className="w-1/2">
                 <h1 className="text-xl font-semibold pb-4">Current Action:</h1>
