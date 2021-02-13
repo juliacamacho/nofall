@@ -107,9 +107,9 @@ def unknown_status():
 def minute_updates():
     global state, doc_ref, min_total_sit, min_sit_start, logs_ref, min_times_stood
 
-    minutely_history = [37]
-    stood_history = [0]
-    while True:
+    minutely_history = [0]
+    stood_history = [0] * 24
+    for i in range(1440):
         print("updating stats")
         
         if min_sit_start != None:
@@ -127,8 +127,8 @@ def minute_updates():
         minutely_history.append(cul_seconds+ min(min_total_sit, 60))
 
         # times stood up
-        cul_stood = stood_history[-1]
-        stood_history.append(cul_stood+ min_times_stood)
+        hr = i%60
+        stood_history[hr] += min_times_stood
 
         logs_ref.document('LYFQJFgzO0vsij7DBXqy').update({
             u'minutely': minutely_history,

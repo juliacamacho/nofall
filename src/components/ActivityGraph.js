@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import Plot from 'react-plotly.js';
 import {db} from "../firebase";
 
+function formatTime(t) {
+    return `${t}:00`
+}
+
 const ActivityGraph = (props) => {
 
     const [sittingX, setSittingX] = useState([]);
@@ -26,6 +30,15 @@ const ActivityGraph = (props) => {
                 }
                 setSittingX(timeX);
                 setSittingY(timeY);
+
+                timeX = []
+                timeY = []
+                snapshot.data().standFreq.forEach((value, idx) => {
+                    timeX.push(formatTime(idx))
+                    timeY.push(value)
+                });
+                setStandupsX(timeX);
+                setStandupsY(timeY);
             })
 
         return () => {
@@ -65,7 +78,7 @@ const ActivityGraph = (props) => {
                         marker: {color: 'rgb(99, 102, 241)', size: 4},
                     }]}
                 layout={{
-                    width: 1470, 
+                    width: 1300, 
                     autosize: true,
                     xaxis: {
                         title: 'Number of Hours',
@@ -87,13 +100,13 @@ const ActivityGraph = (props) => {
             <Plot 
                 data={[
                     {
-                        x: [1, 2, 3],
-                        y: [1, 4, 2],
+                        x: standupsX,
+                        y: standupsY,
                         type: 'bar',
                         marker: {color: 'rgb(99, 102, 241)'}
                     }]}
                 layout={{
-                    width: 1470, 
+                    width: 1300, 
                     autosize: true,
                     xaxis: {
                         title: 'Time of Day',
