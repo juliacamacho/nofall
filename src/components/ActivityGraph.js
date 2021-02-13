@@ -121,6 +121,7 @@ const ActivityGraph = (props) => {
                     }},
                     yaxis: {
                         title: 'Number of Hours',
+                        range: [0,Math.max(goal, ...sittingY)*1.1],
                         titlefont: {
                         family: 'Inter, sans-serif',
                         size: 18,
@@ -175,6 +176,7 @@ const ActivityGraph = (props) => {
                     }},
                     yaxis: {
                         title: 'Number of Stand-ups',
+                        range: [0,Math.max(goal, ...standupsY)*1.1],
                         titlefont: {
                         family: 'Inter, sans-serif',
                         size: 18,
@@ -183,7 +185,7 @@ const ActivityGraph = (props) => {
                     shapes: [
                         {
                             type: 'rect',
-                            x0: 0,
+                            x0: -0.5,
                             y0: goal,
                             x1: standupsX.length,
                             y1: Math.max(goal, ...standupsY)*1.1,
@@ -193,7 +195,7 @@ const ActivityGraph = (props) => {
                         },
                         {
                             type: 'line',
-                            x0: 0,
+                            x0: -0.5,
                             y0: goal,
                             x1: standupsX.length,
                             y1: goal,

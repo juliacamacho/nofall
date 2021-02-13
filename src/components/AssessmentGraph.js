@@ -119,6 +119,7 @@ const AssessmentGraph = (props) => {
                     }},
                     yaxis: {
                         title: 'Average Score',
+                        range: [0,100],
                         titlefont: {
                         family: 'Inter, sans-serif',
                         size: 18,
@@ -171,6 +172,7 @@ const AssessmentGraph = (props) => {
                     }},
                     yaxis: {
                         title: 'Average Score',
+                        range: [0,100],
                         titlefont: {
                         family: 'Inter, sans-serif',
                         size: 18,
