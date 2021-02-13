@@ -9,34 +9,35 @@ const dateStrOpt = {
 };
 
 const AlertsPage = () => {
-    const [loading, setLoading] = useState(true);
     const [alerts, setAlerts] = useState([]);
 
-    useEffect(async () => {
-        const snapshot = await db
+    useEffect(() => {
+        const stopListening = db
             .collection("users/gwmg2hLSPUxzx3PKbj5r/logs")
             .orderBy("timestamp", "desc")
-            .get();
+            .limit(100)
+            .onSnapshot(snapshot => {
+                console.log("[AlertsPage.js] new data");
+                let alerts = [[]];
+                let lastDate = (new Date()).toDateString();
+                snapshot.forEach((event) => {
+                    const alert = event.data();
+                    const dateStr = alert.timestamp.toDate().toDateString();
 
-
-        if (!snapshot.empty) {
-            let alerts = [[]];
-            let lastDate = (new Date()).toDateString();
-            snapshot.forEach((event) => {
-                const alert = event.data();
-                const dateStr = alert.timestamp.toDate().toDateString();
-
-                if (dateStr !== lastDate) {
-                    lastDate = dateStr;
-                    alerts.push([])
-                }
-                alerts[alerts.length - 1].push(alert);
+                    if (dateStr !== lastDate) {
+                        lastDate = dateStr;
+                        alerts.push([])
+                    }
+                    alerts[alerts.length - 1].push(alert);
+                });
+                setAlerts(alerts);
             });
 
-            setAlerts(alerts);
+        return () => {
+            stopListening();
+            console.log("done");
         }
-        setLoading(false);
-    }, []);
+    }, [db]);
 
 
     return (
