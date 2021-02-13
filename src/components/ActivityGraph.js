@@ -97,7 +97,6 @@ const ActivityGraph = (props) => {
                         marker: {color: 'rgb(99, 102, 241)', size: 4},
                     }]}
                 layout={{
-                    width: 1300,
                     autosize: true,
                     xaxis: {
                         title: 'Number of Hours',
@@ -114,17 +113,29 @@ const ActivityGraph = (props) => {
                         size: 18,
                         color: 'black'
                     }},
-                    shapes: [{
-                        type: 'line',
-                        x0: 0,
-                        y0: goal,
-                        x1: 1440,
-                        y1: goal,
-                        line: {
-                            color: 'green',
-                            width: 1
+                    shapes: [
+                        {
+                            type: 'rect',
+                            x0: 0,
+                            y0: goal,
+                            x1: sittingX.length,
+                            y1: 12,
+                            fillcolor: 'green',
+                            opacity: 0.1,
+                            line: {width: 0}
+                        },
+                        {
+                            type: 'line',
+                            x0: 0,
+                            y0: goal,
+                            x1: sittingX.length,
+                            y1: goal,
+                            line: {
+                                color: 'green',
+                                width: 1
+                            }
                         }
-                    }]
+                    ]
 
                 }}
                 useResizeHandler
@@ -141,7 +152,6 @@ const ActivityGraph = (props) => {
                         marker: {color: 'rgb(99, 102, 241)'}
                     }]}
                 layout={{
-                    width: 1300,
                     autosize: true,
                     xaxis: {
                         title: 'Time of Day',
@@ -156,7 +166,30 @@ const ActivityGraph = (props) => {
                         family: 'Inter, sans-serif',
                         size: 18,
                         color: 'black'
-                    }}
+                    }},
+                    shapes: [
+                        {
+                            type: 'rect',
+                            x0: 0,
+                            y0: goal,
+                            x1: standupsX.length,
+                            y1: 20,
+                            fillcolor: 'green',
+                            opacity: 0.1,
+                            line: {width: 0}
+                        },
+                        {
+                            type: 'line',
+                            x0: 0,
+                            y0: goal,
+                            x1: standupsX.length,
+                            y1: goal,
+                            line: {
+                                color: 'green',
+                                width: 1
+                            }
+                        }
+                    ]
                 }}
                 useResizeHandler
                 style={{ width: '100%', height: '100%' }}
