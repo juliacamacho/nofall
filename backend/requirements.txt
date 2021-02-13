@@ -40,3 +40,4 @@ six==1.15.0
 uritemplate==3.0.1
 urllib3==1.26.3
 Werkzeug==1.0.1
+mediapipe==0.8.2
