@@ -82,6 +82,100 @@ print("[INFO] opening ip camera feed...")
 vs = VideoStream("http://admin:750801@98.199.131.202/videostream.cgi?rate=0").start()
 time.sleep(2.0)
 
+def analyze_frames(image):
+    
+    # Flip the image horizontally for a later selfie-view display, and convert
+    # the BGR image to RGB.
+    image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
+    # To improve performance, optionally mark the image as not writeable to
+    # pass by reference.
+    image.flags.writeable = False
+    results = pose.process(image)
+    if results.pose_landmarks is None:
+        return None
+    # Draw the pose annotation on the image.
+    image.flags.writeable = True
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    
+    image_rows, image_cols, _ = image.shape
+    for idx, landmark in enumerate(results.pose_landmarks.landmark):
+        if landmark.visibility < 0 or landmark.presence < 0:
+            continue
+        landmark_px = _normalized_to_pixel_coordinates(landmark.x, landmark.y,
+                                                    image_cols, image_rows)
+        if landmark_px:
+            idx_to_coordinates[idx] = landmark_px
+    
+    #This will test a frontal sit
+    mid_shoulder = np.divide(np.add(idx_to_coordinates[LEFT_SHOULDER],idx_to_coordinates[RIGHT_SHOULDER]),2)
+    # print(mid_shoulder)
+    mid_hip = np.divide(np.add(idx_to_coordinates[LEFT_HIP],idx_to_coordinates[RIGHT_HIP]),2)
+    mid_knee = np.divide(np.add(idx_to_coordinates[LEFT_KNEE],idx_to_coordinates[RIGHT_KNEE]),2)
+    ratio = math.sqrt(sum(np.square(np.subtract(mid_hip,mid_knee))))/math.sqrt(sum(np.square(np.subtract(mid_shoulder,mid_hip))))#distance between hip and knee/distance between hip and shoulder
+    
+    #This will test side sit, where legs are angled
+    l_leg_vector = np.subtract(idx_to_coordinates[LEFT_HIP],idx_to_coordinates[LEFT_KNEE])
+    l_leg_angle=90
+    if l_leg_vector[0]!=0:
+        l_leg_angle = abs(180*np.arctan(l_leg_vector[1]/l_leg_vector[0])/math.pi)
+    
+    r_leg_vector = np.subtract(idx_to_coordinates[RIGHT_HIP],idx_to_coordinates[RIGHT_KNEE])
+    r_leg_angle=90
+    if r_leg_vector[0]!=0:
+        r_leg_angle = abs(180*np.arctan(r_leg_vector[1]/r_leg_vector[0])/math.pi)
+    
+    #This will test lying down
+    knee_shoulder_vector = np.subtract(mid_shoulder,mid_knee)
+    knee_shoulder_angle=90
+    if knee_shoulder_vector[0]!=0:
+        knee_shoulder_angle = abs(180*np.arctan(knee_shoulder_vector[1]/knee_shoulder_vector[0])/math.pi)
+    hip_shoulder_vector = np.subtract(mid_shoulder,mid_hip)
+    hip_shoulder_angle=90
+    if hip_shoulder_vector[0]!=0:
+        hip_shoulder_angle = abs(180*np.arctan(hip_shoulder_vector[1]/hip_shoulder_vector[0])/math.pi)
+    
+    mp_drawing.draw_landmarks(
+        image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+    # font 
+    font = cv2.FONT_HERSHEY_SIMPLEX 
+    
+    # org 
+    org = (20, 20) 
+    
+    # fontScale 
+    fontScale = 1
+    
+    # Blue color in BGR 
+    color = (255, 0, 0) 
+    
+    # Line thickness of 2 px 
+    thickness = 2
+    '''
+    image = cv2.circle(image, (int(mid_shoulder[0]),int(mid_shoulder[1])), 2, (255, 0, 0) , -1)
+    image = cv2.circle(image, (int(mid_hip[0]),int(mid_hip[1])), 2, (0, 255, 0) , -1)
+    image = cv2.circle(image, (int(mid_knee[0]),int(mid_knee[1])), 2, (0, 0, 255) , -1)
+    '''
+    image = cv2.putText(image, "Ratio: "+str(ratio), org, font,  
+                    fontScale, color, thickness, cv2.LINE_AA)
+    image = cv2.putText(image, "L leg angle: "+str(l_leg_angle), (20,500), font,  
+                    fontScale, color, thickness, cv2.LINE_AA)
+    image = cv2.putText(image, "R leg angle: "+str(r_leg_angle), (20,530), font,  
+                    fontScale, color, thickness, cv2.LINE_AA)
+    image = cv2.putText(image, "knee shoulder angle: "+str(knee_shoulder_angle), (20,560), font,  
+                    fontScale, color, thickness, cv2.LINE_AA)
+    image = cv2.putText(image, "hip shoulder angle: "+str(hip_shoulder_angle), (20,590), font,  
+                    fontScale, color, thickness, cv2.LINE_AA)
+    if knee_shoulder_angle<45 and hip_shoulder_angle<45:
+        image = cv2.putText(image, "Fallen over", (20,80), font,  
+                    fontScale, color, thickness, cv2.LINE_AA)
+    if ratio<0.5 or l_leg_angle<60 or r_leg_angle<60:
+        image = cv2.putText(image, "Sitting down", (20,50), font,  
+                    fontScale, color, thickness, cv2.LINE_AA)
+    else:
+        image = cv2.putText(image, "Standing up", (20,50), font,  
+                    fontScale, color, thickness, cv2.LINE_AA)
+    return image
+
 def start_monitor(): 
     global vs, outputFrame, lock
 
@@ -91,7 +185,6 @@ def start_monitor():
         if image is None:
             continue
         # cv2.imshow("Frame", frame)
-
         if image.shape[1]<image.shape[0]: #width is smaller than height
             image = imutils.resize(image, height=640)
             image = cv2.copyMakeBorder( image, 0, 0, int((image.shape[0]-image.shape[1])/2), int((image.shape[0]-image.shape[1])/2), cv2.BORDER_CONSTANT)
@@ -99,71 +192,18 @@ def start_monitor():
         if image.shape[1]>image.shape[0]: #height is smaller than width
             image = imutils.resize(image, width=640)
             image = cv2.copyMakeBorder( image, int((image.shape[1]-image.shape[0])/2), int((image.shape[1]-image.shape[0])/2),0, 0, cv2.BORDER_CONSTANT)
+    
 
-        # Flip the image horizontally for a later selfie-view display, and convert
-        # the BGR image to RGB.
-        image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
-        # To improve performance, optionally mark the image as not writeable to
-        # pass by reference.
-        image.flags.writeable = False
-        results = pose.process(image)
-        if results.pose_landmarks is None:
+        image1 = analyze_frames(image)
+        if image1 is None:
             with lock:
                 outputFrame = image.copy()
             continue
-        # Draw the pose annotation on the image.
-        image.flags.writeable = True
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        
-        image_rows, image_cols, _ = image.shape
-        for idx, landmark in enumerate(results.pose_landmarks.landmark):
-            if landmark.visibility < 0 or landmark.presence < 0:
-                continue
-            landmark_px = _normalized_to_pixel_coordinates(landmark.x, landmark.y,
-                                                        image_cols, image_rows)
-            if landmark_px:
-                idx_to_coordinates[idx] = landmark_px
-        #entire_list.append(idx_to_coordinates)
-        #print(idx_to_coordinates[LEFT_SHOULDER])
-        mid_shoulder = np.divide(np.add(idx_to_coordinates[LEFT_SHOULDER],idx_to_coordinates[RIGHT_SHOULDER]),2)
-        # print(mid_shoulder)
-        mid_hip = np.divide(np.add(idx_to_coordinates[LEFT_HIP],idx_to_coordinates[RIGHT_HIP]),2)
-        mid_knee = np.divide(np.add(idx_to_coordinates[LEFT_KNEE],idx_to_coordinates[RIGHT_KNEE]),2)
-        ratio = math.sqrt(sum(np.square(np.subtract(mid_hip,mid_knee))))/math.sqrt(sum(np.square(np.subtract(mid_shoulder,mid_hip))))#distance between hip and knee/distance between hip and shoulder
-        mp_drawing.draw_landmarks(
-            image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
-        # font 
-        font = cv2.FONT_HERSHEY_SIMPLEX 
-        
-        # org 
-        org = (20, 20) 
-        
-        # fontScale 
-        fontScale = 1
-        
-        # Blue color in BGR 
-        color = (255, 0, 0) 
-        
-        # Line thickness of 2 px 
-        thickness = 2
-        '''
-        image = cv2.circle(image, (int(mid_shoulder[0]),int(mid_shoulder[1])), 2, (255, 0, 0) , -1)
-        image = cv2.circle(image, (int(mid_hip[0]),int(mid_hip[1])), 2, (0, 255, 0) , -1)
-        image = cv2.circle(image, (int(mid_knee[0]),int(mid_knee[1])), 2, (0, 0, 255) , -1)
-        '''
-        image = cv2.putText(image, "Ratio: "+str(ratio), org, font,  
-                        fontScale, color, thickness, cv2.LINE_AA)
-        if ratio<0.5:
-            image = cv2.putText(image, "Sitting down", (20,50), font,  
-                        fontScale, color, thickness, cv2.LINE_AA)
-        else:
-            image = cv2.putText(image, "Standing up", (20,50), font,  
-                        fontScale, color, thickness, cv2.LINE_AA)
         # cv2.imshow('MediaPipe Pose', image)
 
         # time.sleep(0.025)
         with lock:
-            outputFrame = image.copy()
+            outputFrame = image1.copy()
 
 def generate():
 	# grab global references to the output frame and lock variables
