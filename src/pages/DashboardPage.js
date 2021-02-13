@@ -52,7 +52,7 @@ const DashboardPage = () => {
                 <div className="px-16 pb-8">
 
                     <h1 className="text-2xl font-bold mb-6">Ambient Activity Report</h1>
-                    <ActivitySummary userInfo={userInfo}/>
+                    <ActivitySummary userInfo={userInfo} />
                     <ActivityGraph title="Time Spent Active" type="line" logId={logId} userInfo={userInfo} />
                     <ActivityGraph title="Frequency of Stand-ups" type="bar" logId={logId} userInfo={userInfo} />
                     <div className="grid grid-cols-3 gap-x-4">
