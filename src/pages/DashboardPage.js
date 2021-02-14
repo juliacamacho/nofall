@@ -9,9 +9,10 @@ import ActivityCard from '../components/ActivityCard'
 import AssessmentGraph from '../components/AssessmentGraph'
 import {db} from "../firebase";
 
-// const logId = "C1pEhyGu7iflHabRs3Qm" // live
-// const logId = "LYFQJFgzO0vsij7DBXqy" // sample
-const logId = "h2vVRIIuNyr65vgZCe2Y" // day
+//const logId = "C1pEhyGu7iflHabRs3Qm" // live
+//const logId = "LYFQJFgzO0vsij7DBXqy" // sample
+//const logId = "h2vVRIIuNyr65vgZCe2Y" // day
+const logId = "xOz6Cjsm6Zom8njn2MsX";
 
 
 const DashboardPage = () => {
@@ -79,10 +80,10 @@ const DashboardPage = () => {
                     <ActivityGraph title="Total Time Spent Active" type="line" logId={logId} userInfo={userInfo} updateScore={updateScore} />
                     <ActivityGraph title="Frequency of Stand-ups Per Hour" type="bar" logId={logId} userInfo={userInfo} updateScore={updateScore} />
                     <div className="grid grid-cols-3 gap-x-4">
-                        <ActivityCard title="Average Walking Speed" yesterday={3} lastWeek={-4} lastMonth={-14}/>
-                        <ActivityCard title="Average Sitting/Standing Speed" yesterday={3} lastWeek={-4}
-                                      lastMonth={-14}/>
-                        <ActivityCard title="Average Time Spent in Room" yesterday={3} lastWeek={-4} lastMonth={-14}/>
+                        <ActivityCard title="Average Walking Speed" yesterday={3} lastWeek={-4} lastMonth={-6}/>
+                        <ActivityCard title="Average Stand-up Speed" yesterday={4} lastWeek={2}
+                                      lastMonth={6}/>
+                        <ActivityCard title="Average Time Spent in Room" yesterday={1} lastWeek={9} lastMonth={-4}/>
                     </div>
 
                     <h1 className="text-2xl font-bold mt-14 mb-6">Proactive Risk Assessment Results</h1>
