@@ -315,9 +315,11 @@ def analyze_frames(image):
     l_hand_dist = math.sqrt(sum(np.square(np.subtract(mid_mouth,idx_to_coordinates[LEFT_WRIST]))))
     r_hand_dist = math.sqrt(sum(np.square(np.subtract(mid_mouth,idx_to_coordinates[RIGHT_WRIST]))))
     if l_hand_dist<20 or r_hand_dist<20:
-        server_drink()
-        image = cv2.putText(image, "Drinking", (20,80), font,  
-             fontScale, color, thickness, cv2.LINE_AA)
+        cache("Drinking")
+        if allSame():
+            server_drink()
+            image = cv2.putText(image, "Drinking", (20,80), font,  
+                 fontScale, color, thickness, cv2.LINE_AA)
     
     '''
     image = cv2.putText(image, "vel[1]: "+str(vec[1]), org, font,  
