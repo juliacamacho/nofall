@@ -14,7 +14,7 @@ firebase_admin.initialize_app(cred)
 
 
 db = firestore.client()
-
+day = 'C1pEhyGu7iflHabRs3Qm'
 min_total_sit = 0
 min_sit_start = None
 min_times_stood = 0
@@ -96,13 +96,82 @@ def start_fall():
         })
 
 def unknown_status():
-    global state, doc_ref
+    global state, doc_ref, logs_ref
     if state != "unknown":
         state = "unknown"
         doc_ref.update({
             u'status': u'Unknown',
         })
 
+def server_test1():
+    global alerts_ref
+    alerts_ref.document().set({
+        "message": "James has started the Chair Stand Test!",
+        "newStatus": "sitting",
+        "timestamp": SERVER_TIMESTAMP,
+        "type": "info"
+    })
+
+def server_test2():
+    global alerts_ref
+    alerts_ref.document().set({
+        "message": "James has started the Timed Up-and-Go Test!",
+        "newStatus": "standing",
+        "timestamp": SERVER_TIMESTAMP,
+        "type": "info"
+    })
+
+def updateTask(taskNum, score):
+    global state, logs_ref, alerts_ref
+    print("Tasknum: ",taskNum)
+    print("Score: ",score)
+    weekData = [0]*7
+    today = datetime.today().weekday()
+    if taskNum == 2:
+        doc = logs_ref.document(day).get()
+        if doc.exists:
+            data = doc.to_dict()
+            if "tupGo" in data:
+                score = (score+data["tupGo"][today])/2
+                weekData = data["tupGo"]
+            
+            weekData[today] = score
+            logs_ref.document(day).update({
+                "tupGo": weekData
+            }) 
+            alerts_ref.document().set({
+                "message": "James has finished the Timed Up-and-Go Test!",
+                "newStatus": "standing",
+                "timestamp": SERVER_TIMESTAMP,
+                "type": "info"
+            })
+        else:
+            print(u'No such day document!')
+    elif taskNum == 1:
+        doc = logs_ref.document(day).get()
+        if doc.exists:
+            data = doc.to_dict()
+            if "chairStand" in data:
+                score = (score+data["chairStand"][today])/2
+                weekData = data["chairStand"]
+            
+            weekData[today] = score
+            logs_ref.document(day).update({
+                "chairStand": weekData
+            }) 
+            alerts_ref.document().set({
+                "message": "James has finished the Chair Stand Test!",
+                "newStatus": "standing",
+                "timestamp": SERVER_TIMESTAMP,
+                "type": "info"
+            })
+        else:
+            print(u'No such day document!')
+
+    
+    
+
+        
 
 def minute_updates():
     global state, doc_ref, min_total_sit, min_sit_start, logs_ref, min_times_stood
@@ -130,7 +199,7 @@ def minute_updates():
         hr = int(i/60)
         stood_history[hr] += min_times_stood
 
-        logs_ref.document('C1pEhyGu7iflHabRs3Qm').update({
+        logs_ref.document(day).update({
             u'minutely': minutely_history,
             u'standFreq': stood_history,
         })

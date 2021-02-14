@@ -9,7 +9,7 @@ import ActivityCard from '../components/ActivityCard'
 import AssessmentGraph from '../components/AssessmentGraph'
 import {db} from "../firebase";
 
-const logId = "LYFQJFgzO0vsij7DBXqy"
+const logId = "C1pEhyGu7iflHabRs3Qm"
 
 const DashboardPage = () => {
 

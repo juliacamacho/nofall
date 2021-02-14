@@ -3,16 +3,16 @@ import { Link } from 'react-router-dom';
 import Plot from 'react-plotly.js';
 import {db} from "../firebase";
 
-const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 
 const AssessmentGraph = (props) => {
     const [tupGo, setTupGo] = useState({
-        'x': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        'x': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
         'y': [0,0,0,0,0,0,0]
     });
     const [chairStand, setChairStand] = useState({
-        'x': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        'x': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
         'y': [0,0,0,0,0,0,0]
     });
     const [goal, setGoal] = useState(10);

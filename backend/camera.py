@@ -90,11 +90,12 @@ history_cache = deque([])              # max size will be 20, stores past 20 fra
 position_cache = (-1,-1)
 isTesting = False #test 2 is to ask user to sit down, stand up, and walk for 20 seconds, test 1 is to ask the user to sit down and stand up for 20 seconds
 testNum = -1 # This stores test 1 or test 2
-frameRate = 30
-speedThresh = 3*10*frameRate
+frameRate = 25
+speedThresh = 3*10*frameRate*1.5
 speedCounter=0 #once this counter reaches X, the user has walked enough (10 m) and we can stop the timer
 test_cache = [] # max size will be 20*framerate, stores past 20 seconds statuses
 prevStatus = "unknown"
+test_start = None
 
 startingPos = (-1,-1)
 endingPos = (-1,-1)
@@ -106,9 +107,10 @@ def startTest(num): #num is test num
     global isTesting
     global vid_writer
     global testNum
-    global testCounter
+    global testCounter, history_cache
+    history_cache=deque([])
     testCounter=0
-    vid_writer = cv2.VideoWriter("output_server2.avi",cv2.VideoWriter_fourcc('M','J','P','G'), 15, (640,640))
+    vid_writer = cv2.VideoWriter("{}.avi".format(datetime.now().strftime('%f')),cv2.VideoWriter_fourcc('M','J','P','G'), 15, (640,640))
     isTesting = True
     testNum = num
     global speedCounter
@@ -139,36 +141,36 @@ def allSame(): # analyze the past 20 frames
     return True
 
 def cache(status):
-    global history_cache
+    global history_cache, isTesting
     history_cache.append(status)
-    if len(history_cache) == 5:
-        history_cache.popleft()
-            
-        
-def tempUpdate(taskNum, score):
-    print("Tasknum: ",taskNum)
-    print("Score: ",score)
+    if isTesting:
+        if len(history_cache) == 5:
+            history_cache.popleft()
+    else:
+        if len(history_cache) == 10:
+            history_cache.popleft()
 
 def task1_analysis(status,image):
     global test_cache
     global changes
-    global recordCounter
+    global recordCounter, test_start
     if status!="moving":# and status!="falling":
         test_cache.append(status)
         if len(test_cache)>=2 and (test_cache[len(test_cache)-2]=="standing" and status=="sitting") or (test_cache[len(test_cache)-2]=="sitting" and status=="standing"):
             changes+=1
             print(changes)
-    score = changes*4
-    if changes>=26:
+    score = changes*8
+    if changes>=12:
         endTest()
         score=100
-        tempUpdate(1,score) #low risk, score of 100
+        updateTask(1,score) #low risk, score of 100
         
     image = cv2.putText(image, "Score: "+str(score), (20,80), cv2.FONT_HERSHEY_SIMPLEX ,  
                     1, (0,0,255), 1, cv2.LINE_AA)
-    if recordCounter == 30*frameRate:#code to analyze the test_cache for evidence of task completion
+    # if recordCounter == 30*frameRate:#code to analyze the test_cache for evidence of task completion
+    if dif_sec(test_start, datetime.now()) >= 30:
         endTest()
-        tempUpdate(1,score) #higher risk, score decreases linearly
+        updateTask(1,score) #higher risk, score decreases linearly
         # sit up and sit down repeatedly
     return image
 
@@ -184,25 +186,27 @@ def task2_analysis(speed,image):
     if speedCounter>=speedThresh:
         endTest()
         score=100
-        tempUpdate(2,score)#low risk
+        updateTask(2,score)#low risk
         image = cv2.putText(image, "Score: "+str(score), (20,80), cv2.FONT_HERSHEY_SIMPLEX ,  
                     1, (0,0,255), 1, cv2.LINE_AA)
     image = cv2.putText(image, "Score: "+str(score), (20,80), cv2.FONT_HERSHEY_SIMPLEX ,  
                     1, (0,0,255), 1, cv2.LINE_AA)
-    if recordCounter>=12*frameRate:
+    # if recordCounter>=12*frameRate:
+    if dif_sec(test_start, datetime.now()) >= 12:
         endTest()
         
-        tempUpdate(2,score)#higher risk, 
+        updateTask(2,score)#higher risk, 
+
         
     return image
 
 def test_cache_add(status, image, speed):
     global testNum
     if status=="fallen":
-        tempUpdate(testNum,"High risk")
+        updateTask(testNum,0)
         global isTesting
         isTesting=False
-        return;
+        return
     
     
     global recordCounter
@@ -215,6 +219,7 @@ def test_cache_add(status, image, speed):
     
     global vid_writer
     vid_writer.write(image)
+    return image
             
 def add_position(tup):
     global position_cache
@@ -357,7 +362,6 @@ def analyze_frames(image):
     
     image = cv2.putText(image, prevStatus, (20,50), font,  
              fontScale, color, thickness, cv2.LINE_AA)
-    
     if isTesting:
         '''
         global startingPos
@@ -440,10 +444,18 @@ def video_feed():
 
 @app.route("/start_task1")
 def start_task1():
+    global test_start
+    test_start = datetime.now()
+    startTest(1)
+    server_test1()
     return 'Success'
 
 @app.route("/start_task2")
 def start_task2():
+    global test_start
+    test_start = datetime.now()
+    startTest(2)
+    server_test2()
     return 'Success'
 
 if __name__ == '__main__':
