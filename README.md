@@ -1,4 +1,8 @@
+# NoFall
+
 NoFall is the all-in-one solution for remote caregiving for the elderly, with smart ambient activity monitoring, proactive risk assessments, fall detection, and mobile alerts.
+
+![](https://i.imgur.com/nPR68Fj.png)
 
 # About the project
 
@@ -55,6 +59,10 @@ To determine the pose of the user, we utilized Google's MediaPipe library in Pyt
 **Ambient sitting, standing, and falling detection**
 
 To determine if the user is sitting or standing, we calculated the angle that the knees make with the hips and set a threshold, where angles (measured from the horizontal) less than that number are considered sitting. To account for the angle where the user is directly facing the camera, we also determined the ratio of the hip-to knee length to the hip-to-shoulder length, reasoning that the 2D landmarks of the knees would be closer to the body when the user is sitting. To determine the fallen status, we determined if the center of the shoulders and the center of the knees made an angle less than 45 degrees for over 20 frames at once. If the legs made an angle greater than a certain threshold (close to 90 degrees), we considered the user to be standing. Lastly, if there was no detection of landmarks, we considered the status to be unknown (the user may have left the room/area). Because of the different possible angles of the camera, we also determined the perspective of the camera based on the convergence of straight lines (the straight lines are determined by a Hough transformation algorithm). The convergence can indicate how angled the camera is, and the thresholds for the ratio of lengths can be mathematically transformed accordingly.
+
+[Fall detection video](https://i.imgur.com/oKNJVfr.mp4)
+
+![](https://i.imgur.com/Cjyohos.gif)
 
 **Proactive risk assessment analysis**
 
