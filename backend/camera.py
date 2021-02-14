@@ -194,11 +194,15 @@ def task2_analysis(speed,image):
     '''
     image = cv2.putText(image, "Meters traveled: "+str(score), (20,80), cv2.FONT_HERSHEY_SIMPLEX ,  
                     1, (0,0,255), 1, cv2.LINE_AA)
+    if score>=10:
+        endTest()
+        
+        updateTask(2,dif_sec(test_start, datetime.now()))#higher risk, 
     # if recordCounter>=12*frameRate:
     if dif_sec(test_start, datetime.now()) >= 30:
         endTest()
         
-        updateTask(2,score)#higher risk, 
+        updateTask(2,30)#higher risk, 
 
         
     return image
