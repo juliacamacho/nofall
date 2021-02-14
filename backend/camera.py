@@ -160,18 +160,18 @@ def task1_analysis(status,image):
         if len(test_cache)>=2 and (test_cache[len(test_cache)-2]=="standing" and status=="sitting") or (test_cache[len(test_cache)-2]=="sitting" and status=="standing"):
             changes+=1
             print(changes)
-    score = changes*8
+    '''
     if changes>=12:
         endTest()
         score=100
         updateTask(1,score) #low risk, score of 100
-        
-    image = cv2.putText(image, "Score: "+str(score), (20,80), cv2.FONT_HERSHEY_SIMPLEX ,  
+    '''
+    image = cv2.putText(image, "Number of sits: "+str(changes/2), (20,80), cv2.FONT_HERSHEY_SIMPLEX ,  
                     1, (0,0,255), 1, cv2.LINE_AA)
     # if recordCounter == 30*frameRate:#code to analyze the test_cache for evidence of task completion
     if dif_sec(test_start, datetime.now()) >= 30:
         endTest()
-        updateTask(1,score) #higher risk, score decreases linearly
+        updateTask(1,changes/2) #higher risk, score decreases linearly
         # sit up and sit down repeatedly
     return image
 
@@ -182,18 +182,20 @@ def task2_analysis(speed,image):
     #test_cache.append(status)
     speedCounter+=speed
     print(speedCounter)
-    score = speedCounter/speedThresh*100
+    score = speedCounter/speedThresh*10 #This is in meters
     
+    '''
     if speedCounter>=speedThresh:
         endTest()
         score=100
         updateTask(2,score)#low risk
         image = cv2.putText(image, "Score: "+str(score), (20,80), cv2.FONT_HERSHEY_SIMPLEX ,  
                     1, (0,0,255), 1, cv2.LINE_AA)
-    image = cv2.putText(image, "Score: "+str(score), (20,80), cv2.FONT_HERSHEY_SIMPLEX ,  
+    '''
+    image = cv2.putText(image, "Meters traveled: "+str(score), (20,80), cv2.FONT_HERSHEY_SIMPLEX ,  
                     1, (0,0,255), 1, cv2.LINE_AA)
     # if recordCounter>=12*frameRate:
-    if dif_sec(test_start, datetime.now()) >= 12:
+    if dif_sec(test_start, datetime.now()) >= 30:
         endTest()
         
         updateTask(2,score)#higher risk, 
