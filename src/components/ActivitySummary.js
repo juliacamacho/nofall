@@ -30,7 +30,7 @@ const ActivitySummary = (props) => {
             <div className="grid grid-cols-2 gap-x-6">
                 <Link className="bg-white card-anim py-6 px-8 flex items-center space-x-4">
                     <img src={water} className="rounded-full h-14 w-14" />
-                    <h1 className="text-xl font-semibold">{props.userInfo.first} drank water 11 times today.</h1>
+                    <h1 className="text-xl font-semibold">{props.userInfo.first} drank water {props.userInfo.water} times today.</h1>
                 </Link>
 
                 <Link className="bg-white card-anim py-6 px-8 flex items-center space-x-4">

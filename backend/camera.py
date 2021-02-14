@@ -295,15 +295,7 @@ def analyze_frames(image):
     
     mp_drawing.draw_landmarks(
         image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
-    
-    #Determine if hand is close to mouth for water
-    mid_mouth = np.divide(np.add(idx_to_coordinates[LEFT_MOUTH],idx_to_coordinates[RIGHT_MOUTH]),2)
-    l_hand_dist = math.sqrt(sum(np.square(np.subtract(mid_mouth,idx_to_coordinates[LEFT_WRIST]))))
-    r_hand_dist = math.sqrt(sum(np.square(np.subtract(mid_mouth,idx_to_coordinates[RIGHT_WRIST]))))
-    if l_hand_dist<20 or r_hand_dist<20:
-        image = cv2.putText(image, "Drinking", (20,80), font,  
-             fontScale, color, thickness, cv2.LINE_AA)
-    
+
     # font 
     font = cv2.FONT_HERSHEY_SIMPLEX 
     
@@ -318,6 +310,15 @@ def analyze_frames(image):
     
     # Line thickness of 2 px 
     thickness = 2
+    #Determine if hand is close to mouth for water
+    mid_mouth = np.divide(np.add(idx_to_coordinates[MOUTH_LEFT],idx_to_coordinates[MOUTH_RIGHT]),2)
+    l_hand_dist = math.sqrt(sum(np.square(np.subtract(mid_mouth,idx_to_coordinates[LEFT_WRIST]))))
+    r_hand_dist = math.sqrt(sum(np.square(np.subtract(mid_mouth,idx_to_coordinates[RIGHT_WRIST]))))
+    if l_hand_dist<20 or r_hand_dist<20:
+        server_drink()
+        image = cv2.putText(image, "Drinking", (20,80), font,  
+             fontScale, color, thickness, cv2.LINE_AA)
+    
     '''
     image = cv2.putText(image, "vel[1]: "+str(vec[1]), org, font,  
                     fontScale, color, thickness, cv2.LINE_AA)

@@ -190,17 +190,38 @@ def updateTask(taskNum, score):
         else:
             print(u'No such day document!')
 
+last_drink = None
     
-    
-
-        
+def server_drink():
+    global doc_ref, last_drink
+    now = datetime.now()
+    if last_drink == None or dif_sec(last_drink, now) > 8:
+        last_drink = datetime.now()
+        doc= doc_ref.get()
+        data = doc.to_dict()
+        doc_ref.update({
+            "water": int(data["water"]) + 1
+        }) 
 
 def minute_updates():
     global state, doc_ref, min_total_sit, min_sit_start, logs_ref, min_times_stood
 
-    minutely_history = [0]
+    day_doc = logs_ref.document(day).get()
+    day_data = day_doc.to_dict()
+
+    minutely_history = [60]
+    if "minutely" in day_data:
+        minutely_history = day_data["minutely"]
+    
     stood_history = [0] * 24
-    for i in range(1440):
+    if "standFreq" in day_data:
+        stood_history = day_data["standFreq"]
+
+    while True:
+        now = datetime.now()
+        hr = now.hour
+        minute = now.hour * 60 + now.minute
+
         print("updating stats")
         
         if min_sit_start != None:
@@ -214,13 +235,16 @@ def minute_updates():
                 min_sit_start = datetime.now()
         
         # if we ended standing, we already accounted for the minute
+
+        for i in range(len(minutely_history), minute):
+            temp = minutely_history[-1]
+            minutely_history += [temp+60]
+        
         cul_seconds = minutely_history[-1]
         minutely_history.append(cul_seconds+ min(min_total_sit, 60))
 
         # times stood up
-        hr = int(i/60)
         stood_history[hr] += min_times_stood
-
         logs_ref.document(day).update({
             u'minutely': minutely_history,
             u'standFreq': stood_history,
