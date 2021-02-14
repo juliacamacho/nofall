@@ -203,7 +203,6 @@ def task2_analysis(speed,image):
         endTest()
         
         updateTask(2,30)#higher risk, 
-
         
     return image
 
