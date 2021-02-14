@@ -89,7 +89,7 @@ const AssessmentGraph = (props) => {
                         color: 'black'
                     }},
                     yaxis: {
-                        title: 'Average Score',
+                        title: 'Average Time to Walk 10 m (s)',
                         range: [0,Math.max(props.boundaries[1], ...tupGo.y)*1.1],
                         titlefont: {
                         family: 'Inter, sans-serif',
@@ -154,7 +154,7 @@ const AssessmentGraph = (props) => {
                         color: 'black'
                     }},
                     yaxis: {
-                        title: 'Average Score',
+                        title: 'Number of chair stands',
                         range: [0,Math.max(props.boundaries[1], ...chairStand.y)*1.1],
                         titlefont: {
                         family: 'Inter, sans-serif',
