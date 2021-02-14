@@ -32,7 +32,7 @@ import random
 
 tupScore = []
 for i in range(7):
-    tupScore.append(random.randint(70, 95))
+    tupScore.append(random.randint(15,30))
 logs_ref.document('h2vVRIIuNyr65vgZCe2Y').update({
     # u'minutely': minutely,
     u'tupGo': tupScore,

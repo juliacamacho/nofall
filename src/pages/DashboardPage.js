@@ -9,7 +9,10 @@ import ActivityCard from '../components/ActivityCard'
 import AssessmentGraph from '../components/AssessmentGraph'
 import {db} from "../firebase";
 
-const logId = "C1pEhyGu7iflHabRs3Qm"
+// const logId = "C1pEhyGu7iflHabRs3Qm" // live
+// const logId = "LYFQJFgzO0vsij7DBXqy" // sample
+const logId = "h2vVRIIuNyr65vgZCe2Y" // day
+
 
 const DashboardPage = () => {
 
@@ -83,8 +86,8 @@ const DashboardPage = () => {
                     </div>
 
                     <h1 className="text-2xl font-bold mt-14 mb-6">Proactive Risk Assessment Results</h1>
-                    <AssessmentGraph title="Timed Up-and-Go Test" logId={logId} userInfo={userInfo} />
-                    <AssessmentGraph title="Chair Stand Test" logId={logId} userInfo={userInfo} />
+                    <AssessmentGraph title="Timed Up-and-Go Test" logId={logId} boundaries={[24, 12]} />
+                    <AssessmentGraph title="Chair Stand Test" logId={logId} boundaries={[5, 13]} />
 
                 </div>
             </>

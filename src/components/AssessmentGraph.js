@@ -15,27 +15,8 @@ const AssessmentGraph = (props) => {
         'x': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
         'y': [0,0,0,0,0,0,0]
     });
-    const [goal, setGoal] = useState(10);
-    let goalInputRef = React.createRef();
-
-    const handleUpdateGoal = () => {
-        console.log(goalInputRef.current.value);
-        setGoal(goalInputRef.current.value);
-        // also save goal to firestore
-        db.collection("users")
-            .doc("gwmg2hLSPUxzx3PKbj5r")
-            .set({
-                goalConfig: {[props.title]: goalInputRef.current.value}
-            }, {merge: true});
-    }
 
     useEffect(() => {
-        // set goals
-        if (props.userInfo && props.userInfo.goalConfig && props.userInfo.goalConfig[props.title]) {
-            setGoal(props.userInfo.goalConfig[props.title]);
-            goalInputRef.current.value = props.userInfo.goalConfig[props.title];
-        }
-
         const stopListening = db
             .collection("users/gwmg2hLSPUxzx3PKbj5r/logs")
             .doc(props.logId)
@@ -79,16 +60,6 @@ const AssessmentGraph = (props) => {
 
                 <div className="flex space-x-4 items-baseline">
                     <h1 className="text-xl font-semibold">{props.title}</h1>
-                    <span className="text-sm">
-                        <label>Goal: </label>
-                        <input
-                            className="text-gray-600 bg-gray-100 focus:bg-white focus:outline-none text-sm w-12"
-                            type="number"
-                            defaultValue={goal}
-                            ref={goalInputRef}
-                            onBlur={handleUpdateGoal}
-                        />
-                    </span>
                 </div>
 
                 <div className="flex items-center space-x-6">
@@ -118,8 +89,8 @@ const AssessmentGraph = (props) => {
                         color: 'black'
                     }},
                     yaxis: {
-                        title: 'Average Score',
-                        range: [0,100],
+                        title: 'Average Time to Walk 10 m (s)',
+                        range: [0,Math.max(props.boundaries[1], ...tupGo.y)*1.1],
                         titlefont: {
                         family: 'Inter, sans-serif',
                         size: 18,
@@ -129,23 +100,35 @@ const AssessmentGraph = (props) => {
                         {
                             type: 'rect',
                             x0: -0.5,
-                            y0: goal,
+                            y0: Math.max(...props.boundaries),
                             x1: tupGo.x.length,
-                            y1: 100,
-                            fillcolor: 'green',
+                            y1: Math.max(...props.boundaries, ...tupGo.y)*1.1,
+                            fillcolor: props.boundaries[1] > props.boundaries[0] ? 'green' : 'red',
+                            layer: 'below',
                             opacity: 0.1,
                             line: {width: 0}
                         },
                         {
-                            type: 'line',
+                            type: 'rect',
                             x0: -0.5,
-                            y0: goal,
+                            y0: props.boundaries[0],
                             x1: tupGo.x.length,
-                            y1: goal,
-                            line: {
-                                color: 'green',
-                                width: 1
-                            }
+                            y1: props.boundaries[1],
+                            fillcolor: 'orange',
+                            layer: 'below',
+                            opacity: 0.1,
+                            line: {width: 0}
+                        },
+                        {
+                            type: 'rect',
+                            x0: -0.5,
+                            y0: 0,
+                            x1: tupGo.x.length,
+                            y1: Math.min(...props.boundaries),
+                            fillcolor: props.boundaries[1] > props.boundaries[0] ? 'red' : 'green',
+                            layer: 'below',
+                            opacity: 0.1,
+                            line: {width: 0}
                         }
                     ]
                 }}
@@ -171,8 +154,8 @@ const AssessmentGraph = (props) => {
                         color: 'black'
                     }},
                     yaxis: {
-                        title: 'Average Score',
-                        range: [0,100],
+                        title: 'Number of chair stands',
+                        range: [0,Math.max(props.boundaries[1], ...chairStand.y)*1.1],
                         titlefont: {
                         family: 'Inter, sans-serif',
                         size: 18,
@@ -182,23 +165,35 @@ const AssessmentGraph = (props) => {
                         {
                             type: 'rect',
                             x0: -0.5,
-                            y0: goal,
+                            y0: Math.max(...props.boundaries),
                             x1: chairStand.x.length,
-                            y1: 100,
-                            fillcolor: 'green',
+                            y1: Math.max(...props.boundaries, ...chairStand.y)*1.1,
+                            fillcolor: props.boundaries[1] > props.boundaries[0] ? 'green' : 'red',
+                            layer: 'below',
                             opacity: 0.1,
                             line: {width: 0}
                         },
                         {
-                            type: 'line',
+                            type: 'rect',
                             x0: -0.5,
-                            y0: goal,
+                            y0: props.boundaries[0],
                             x1: chairStand.x.length,
-                            y1: goal,
-                            line: {
-                                color: 'green',
-                                width: 1
-                            }
+                            y1: props.boundaries[1],
+                            fillcolor: 'orange',
+                            layer: 'below',
+                            opacity: 0.1,
+                            line: {width: 0}
+                        },
+                        {
+                            type: 'rect',
+                            x0: -0.5,
+                            y0: 0,
+                            x1: chairStand.x.length,
+                            y1: Math.min(...props.boundaries),
+                            fillcolor: props.boundaries[1] > props.boundaries[0] ? 'red' : 'green',
+                            layer: 'below',
+                            opacity: 0.1,
+                            line: {width: 0}
                         }
                     ]
                 }}

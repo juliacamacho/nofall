@@ -6,6 +6,19 @@ from firebase_admin.firestore import SERVER_TIMESTAMP
 from datetime import datetime
 import time
 import threading
+import requests
+import json
+
+config = json.load(open('config.json'))
+
+
+def sendSMS(message):
+  requests.post(
+    'https://maker.ifttt.com/trigger/treehacks/with/key/'+config['smsKey'], 
+    data = {
+      'value1':config['smsNumber'], 
+      'value2': message}
+    )
 
 # app = Flask(__name__)
 
@@ -69,6 +82,8 @@ def start_stand():
                 "timestamp": SERVER_TIMESTAMP,
                 "type": "recovered"
             })
+            
+            sendSMS("James has stood back up")
         if state == "sitting":
             # went from sitting to standing, update the time this minute spent sitting
             if min_sit_start != None:
@@ -94,6 +109,7 @@ def start_fall():
             "timestamp": SERVER_TIMESTAMP,
             "type": "alert"
         })
+        sendSMS("James appears to have fallen down!")
 
 def unknown_status():
     global state, doc_ref, logs_ref
@@ -111,6 +127,8 @@ def server_test1():
         "timestamp": SERVER_TIMESTAMP,
         "type": "info"
     })
+    sendSMS("James has started the Chair Stand Test!")
+
 
 def server_test2():
     global alerts_ref
@@ -120,6 +138,7 @@ def server_test2():
         "timestamp": SERVER_TIMESTAMP,
         "type": "info"
     })
+    sendSMS("James has started the Timed Up-and-Go Test!")
 
 def updateTask(taskNum, score):
     global state, logs_ref, alerts_ref
@@ -145,6 +164,8 @@ def updateTask(taskNum, score):
                 "timestamp": SERVER_TIMESTAMP,
                 "type": "info"
             })
+            
+            sendSMS("James has finished the Timed Up-and-Go Test!")
         else:
             print(u'No such day document!')
     elif taskNum == 1:
@@ -165,6 +186,7 @@ def updateTask(taskNum, score):
                 "timestamp": SERVER_TIMESTAMP,
                 "type": "info"
             })
+            sendSMS("James has finished the Chair Stand Test!")
         else:
             print(u'No such day document!')
 
