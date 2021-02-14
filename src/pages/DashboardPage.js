@@ -86,8 +86,8 @@ const DashboardPage = () => {
                     </div>
 
                     <h1 className="text-2xl font-bold mt-14 mb-6">Proactive Risk Assessment Results</h1>
-                    <AssessmentGraph title="Timed Up-and-Go Test" logId={logId} userInfo={userInfo} />
-                    <AssessmentGraph title="Chair Stand Test" logId={logId} userInfo={userInfo} />
+                    <AssessmentGraph title="Timed Up-and-Go Test" logId={logId} boundaries={[24, 12]} />
+                    <AssessmentGraph title="Chair Stand Test" logId={logId} boundaries={[5, 13]} />
 
                 </div>
             </>
