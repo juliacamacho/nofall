@@ -245,6 +245,8 @@ def minute_updates():
 
         # times stood up
         stood_history[hr] += min_times_stood
+
+        
         logs_ref.document(day).update({
             u'minutely': minutely_history,
             u'standFreq': stood_history,

@@ -32,13 +32,8 @@ const ActivitySummary = (props) => {
 
             <div className="block inline-block w-full xl:w-5/12 grid grid-cols-2 gap-x-6">
                 <Link className="bg-white card-anim py-6 px-8 flex items-center space-x-4">
-<<<<<<< HEAD
                     <img src={water} className="rounded-full h-14 w-14" />
                     <h1 className="text-xl font-semibold">{props.userInfo.first} drank water {props.userInfo.water} times today.</h1>
-=======
-                    <img src={water} className="rounded-full h-14 w-14"/>
-                    <h1 className="text-xl font-semibold">{props.userInfo.first} drank water 11 times today.</h1>
->>>>>>> 57a084c896c7270ea790f5307b6c4cceb83ad580
                 </Link>
 
                 <Link className="bg-white card-anim py-6 px-8 flex items-center space-x-4">
