@@ -82,14 +82,14 @@ const AssessmentGraph = (props) => {
                 layout={{
                     autosize: true,
                     xaxis: {
-                        title: 'Weekday',
+                        title: 'Day of the Week',
                         titlefont: {
                         family: 'Inter, sans-serif',
                         size: 18,
                         color: 'black'
                     }},
                     yaxis: {
-                        title: 'Average Time to Walk 10 m (s)',
+                        title: 'Time to Walk 10 ft (s)',
                         range: [0,Math.max(props.boundaries[1], ...tupGo.y)*1.1],
                         titlefont: {
                         family: 'Inter, sans-serif',
@@ -147,14 +147,14 @@ const AssessmentGraph = (props) => {
                 layout={{
                     autosize: true,
                     xaxis: {
-                        title: 'Weekday',
+                        title: 'Day of the Week',
                         titlefont: {
                         family: 'Inter, sans-serif',
                         size: 18,
                         color: 'black'
                     }},
                     yaxis: {
-                        title: 'Number of chair stands',
+                        title: 'Number of Chair Stand/Sits',
                         range: [0,Math.max(props.boundaries[1], ...chairStand.y)*1.1],
                         titlefont: {
                         family: 'Inter, sans-serif',
