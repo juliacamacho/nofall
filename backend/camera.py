@@ -88,6 +88,7 @@ time.sleep(2.0)
 
 idx_to_coordinates = {}
 history_cache = deque([])              # max size will be 20, stores past 20 frame statuses
+drink_cache = deque([])              # max size will be 20, stores past 20 frame statuses
 position_cache = (-1,-1)
 isTesting = False #test 2 is to ask user to sit down, stand up, and walk for 20 seconds, test 1 is to ask the user to sit down and stand up for 20 seconds
 testNum = -1 # This stores test 1 or test 2
@@ -111,8 +112,8 @@ def startTest(num): #num is test num
     global testCounter, history_cache
     history_cache=deque([])
     testCounter=0
-    # vid_writer = cv2.VideoWriter("{}.mp4".format(datetime.now().strftime('%f')),cv2.VideoWriter_fourcc('M','J','P','G'), 15, (640,640))
-    vid_writer = cv2.VideoWriter("{}.mp4".format(datetime.now().strftime('%f')) , 0x7634706d , 22, (640,640))
+    vid_writer = cv2.VideoWriter("{}.avi".format(datetime.now().strftime('%f')),cv2.VideoWriter_fourcc('M','J','P','G'), 15, (640,640))
+    # vid_writer = cv2.VideoWriter("{}.mp4".format(datetime.now().strftime('%f')) , 0x7634706d , 22, (640,640))
     isTesting = True
     testNum = num
     global speedCounter
@@ -142,6 +143,16 @@ def allSame(): # analyze the past 20 frames
             return False
     return True
 
+def drinkSame(): # analyze the past 20 frames
+    global drink_cache
+    prev = None
+    for status in drink_cache:
+        if prev == None:
+            prev = status
+        elif prev != status:
+            return False
+    return True
+
 def cache(status):
     global history_cache, isTesting
     history_cache.append(status)
@@ -151,6 +162,12 @@ def cache(status):
     else:
         if len(history_cache) == 10:
             history_cache.popleft()
+
+def cacheDrink(status):
+    global drink_cache, isTesting
+    drink_cache.append(status)
+    if len(drink_cache) == 5:
+        drink_cache.popleft()
 
 def task1_analysis(status,image):
     global test_cache
@@ -314,12 +331,16 @@ def analyze_frames(image):
     mid_mouth = np.divide(np.add(idx_to_coordinates[MOUTH_LEFT],idx_to_coordinates[MOUTH_RIGHT]),2)
     l_hand_dist = math.sqrt(sum(np.square(np.subtract(mid_mouth,idx_to_coordinates[LEFT_WRIST]))))
     r_hand_dist = math.sqrt(sum(np.square(np.subtract(mid_mouth,idx_to_coordinates[RIGHT_WRIST]))))
-    if l_hand_dist<20 or r_hand_dist<20:
-        cache("Drinking")
-        if allSame() and isTesting==False:
+    # print(l_hand_dist, r_hand_dist)
+    if l_hand_dist<50 or r_hand_dist<50:
+        cacheDrink("Drinking")
+        if drinkSame() and isTesting==False:
+            # print("drinking")
             server_drink()
             image = cv2.putText(image, "Drinking", (20,80), font,  
-                 fontScale, color, thickness, cv2.LINE_AA)
+                    fontScale, color, thickness, cv2.LINE_AA)
+    else:
+        cacheDrink("Not Drinking")
     
     '''
     image = cv2.putText(image, "vel[1]: "+str(vec[1]), org, font,  
