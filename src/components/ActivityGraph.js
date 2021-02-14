@@ -44,7 +44,7 @@ const ActivityGraph = (props) => {
             if (goal == 0)
                 localScore = 100;
             else
-                localScore = (yAxisData[yAxisData.length - 1]) / goal * 100;
+                localScore = Math.min((yAxisData[yAxisData.length - 1]) / goal * 100, 100);
             props.updateScore(localScore, "active");
         }
         else {
@@ -53,7 +53,7 @@ const ActivityGraph = (props) => {
             yAxisData.forEach((value) => {
                 sum += value;
             })
-            localScore = sum / (xAxisData.length * goal) * 100;
+            localScore = Math.min(sum / (xAxisData.length * goal) * 100, 100);
             props.updateScore(localScore, "stand");
         }
 
