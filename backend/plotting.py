@@ -32,10 +32,15 @@ import random
 
 tupScore = []
 for i in range(7):
-    tupScore.append(random.randint(15,30))
-logs_ref.document('h2vVRIIuNyr65vgZCe2Y').update({
+    tupScore.append(random.randint(15-i*2,30-(i*3)))
+    
+chair = []
+for i in range(7):
+    chair.append(random.randint(5+i*2,15+(i*3)))
+logs_ref.document('xOz6Cjsm6Zom8njn2MsX').update({
     # u'minutely': minutely,
     u'tupGo': tupScore,
+    u'chairStand': chair,
     # u'standFreq': stood,
 
 })
