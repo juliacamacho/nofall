@@ -25,8 +25,9 @@ from flask import Response
 import threading
 from collections import deque
 from api import *
+import json
 
-
+config = json.load(open('config.json'))
 
 NOSE = 0
 RIGHT_EYE_INNER = 1
@@ -81,7 +82,7 @@ outputFrame = None
 lock = threading.Lock()
 
 print("[INFO] opening ip camera feed...")
-vs = VideoStream("http://admin:750801@98.199.131.202/videostream.cgi?rate=0").start()
+vs = VideoStream(config["camera"]).start()
 time.sleep(2.0)
 
 
