@@ -3,4 +3,4 @@ env/
 *.avi
 __pycache__/
 
-config.json
+*.json
