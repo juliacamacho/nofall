@@ -1,8 +1,6 @@
-NoFall is the all-in-one solution for remote caregiving for the elderly, with smart ambient activity monitoring, proactive risk assessments, fall detection, and mobile alerts. (169)
+NoFall is the all-in-one solution for remote caregiving for the elderly, with smart ambient activity monitoring, proactive risk assessments, fall detection, and mobile alerts.
 
 # About the project
-
-*Be sure to write what inspired you, what you learned, how you built your project, and the challenges you faced. Format your story in [Markdown](https://www.markdownguide.org/cheat-sheet/).*
 
 ## Inspiration
 
