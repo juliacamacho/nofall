@@ -332,7 +332,7 @@ def analyze_frames(image):
     l_hand_dist = math.sqrt(sum(np.square(np.subtract(mid_mouth,idx_to_coordinates[LEFT_WRIST]))))
     r_hand_dist = math.sqrt(sum(np.square(np.subtract(mid_mouth,idx_to_coordinates[RIGHT_WRIST]))))
     # print(l_hand_dist, r_hand_dist)
-    if l_hand_dist<50 or r_hand_dist<50:
+    if l_hand_dist<25 or r_hand_dist<25:
         cacheDrink("Drinking")
         if drinkSame() and isTesting==False:
             # print("drinking")
@@ -365,7 +365,7 @@ def analyze_frames(image):
         #             fontScale, color, thickness, cv2.LINE_AA)
         status="falling"
         cache(status)
-    '''
+    
     if abs(vec[0])>2:# Ideally the speed should be normalized to some reference, like the distance between the eyes (but this changes with rotation too). Also this doesn't work with frontal walking, only side walking. In fact frontal walking will be detected as falling
         #walking/moving
         # image = cv2.putText(image, "Moving", (20,80), font,  
@@ -373,7 +373,8 @@ def analyze_frames(image):
         status="moving"
         cache(status)
         #@Steven need to create endpoint for movement
-    elif knee_shoulder_angle<45 and hip_shoulder_angle<45:
+    '''
+    if knee_shoulder_angle<45 and hip_shoulder_angle<45:
         # image = cv2.putText(image, "Fallen over", (20,80), font,  
         #             fontScale, color, thickness, cv2.LINE_AA)
         status="fallen"
