@@ -20,20 +20,22 @@ const AlertsPage = () => {
             .onSnapshot(snapshot => {
                 console.debug("[AlertsPage.js] new data");
                 let alerts = [[]];
-                let lastDate = (new Date()).toDateString();
+                let lastDate = null;
                 let receivedData = false;
                 snapshot.forEach((event) => {
                     receivedData = true;
                     const alert = event.data();
                     const dateStr = alert.timestamp.toDate().toDateString();
 
+                    if (!lastDate) lastDate = dateStr;
                     if (dateStr !== lastDate) {
+                        alerts.push([]);
                         lastDate = dateStr;
-                        alerts.push([])
                     }
                     alerts[alerts.length - 1].push(alert);
                 });
                 if (receivedData) {
+                    console.log(alerts)
                     setAlerts(alerts);
                     setLoading(false);
                 }

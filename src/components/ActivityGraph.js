@@ -49,12 +49,11 @@ const ActivityGraph = (props) => {
         }
         else {
             let passed = 0
+            let sum = 0;
             yAxisData.forEach((value) => {
-                if (value >= goal){
-                    passed++;
-                }
+                sum += value;
             })
-            localScore = passed / xAxisData.length * 100;
+            localScore = sum / (xAxisData.length * goal) * 100;
             props.updateScore(localScore, "stand");
         }
 
