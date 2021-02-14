@@ -110,7 +110,8 @@ def startTest(num): #num is test num
     global testCounter, history_cache
     history_cache=deque([])
     testCounter=0
-    vid_writer = cv2.VideoWriter("{}.avi".format(datetime.now().strftime('%f')),cv2.VideoWriter_fourcc('M','J','P','G'), 15, (640,640))
+    # vid_writer = cv2.VideoWriter("{}.mp4".format(datetime.now().strftime('%f')),cv2.VideoWriter_fourcc('M','J','P','G'), 15, (640,640))
+    vid_writer = cv2.VideoWriter("{}.mp4".format(datetime.now().strftime('%f')) , 0x7634706d , 22, (640,640))
     isTesting = True
     testNum = num
     global speedCounter
