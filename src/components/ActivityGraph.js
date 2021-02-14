@@ -169,6 +169,55 @@ const ActivityGraph = (props) => {
                         size: 18,
                         color: 'black'
                     }},
+                    annotations: [{
+                        x: 540,
+                        y: 0.6,
+                        xref: 'x',
+                        yref: 'y',
+                        text: 'Test Finished',
+                        showarrow: true,
+                        arrowhead: 7,
+                        ax: 0,
+                        ay: -40,
+                        font: {
+                            size: 14,
+                            color: '#ffffff'
+                        },
+                        bgcolor: '#3b82f6',
+                    },
+                    {
+                        x: 1200,
+                        y: 3,
+                        xref: 'x',
+                        yref: 'y',
+                        text: 'Fall',
+                        showarrow: true,
+                        arrowhead: 7,
+                        ax: 0,
+                        ay: -40,
+                        font: {
+                            size: 14,
+                            color: '#ffffff'
+                        },
+                        bgcolor: '#ef4444',
+                    },
+                    {
+                        x: 1250,
+                        y: 3,
+                        xref: 'x',
+                        yref: 'y',
+                        text: 'Recovery',
+                        showarrow: true,
+                        arrowhead: 7,
+                        ax: 0,
+                        ay: -40,
+                        font: {
+                            size: 14,
+                            color: '#ffffff'
+                        },
+                        bgcolor: '#22c55e',
+                    }
+                    ],
                     shapes: [
                         {
                             type: 'rect',

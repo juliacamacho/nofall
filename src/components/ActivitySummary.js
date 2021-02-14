@@ -8,7 +8,7 @@ import water from '../assets/water.png'
 const ActivitySummary = (props) => {
     return (
         <div
-            className="bg-indigo-50 rounded-lg py-8 px-10 flex flex-wrap space-x-0 xl:space-x-20 space-y-20 justify-around items-center mb-6">
+            className="bg-indigo-50 rounded-lg py-8 px-10 flex flex-wrap space-x-0 space-y-12 xl:space-x-20 xl:space-x-0 justify-around items-center mb-6">
 
             <div className="block inline-block w-full xl:w-5/12 flex space-x-20 justify-around items-center">
                 <div className="block inline-block w-60">

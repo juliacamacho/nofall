@@ -81,8 +81,7 @@ const DashboardPage = () => {
                     <ActivityGraph title="Frequency of Stand-ups Per Hour" type="bar" logId={logId} userInfo={userInfo} updateScore={updateScore} />
                     <div className="grid grid-cols-3 gap-x-4">
                         <ActivityCard title="Average Walking Speed" yesterday={3} lastWeek={-4} lastMonth={-6}/>
-                        <ActivityCard title="Average Stand-up Speed" yesterday={4} lastWeek={2}
-                                      lastMonth={6}/>
+                        <ActivityCard title="Average Stand-up Speed" yesterday={4} lastWeek={2} lastMonth={6}/>
                         <ActivityCard title="Average Time Spent in Room" yesterday={1} lastWeek={9} lastMonth={-4}/>
                     </div>
 
