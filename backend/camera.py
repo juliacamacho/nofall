@@ -25,8 +25,9 @@ from flask import Response
 import threading
 from collections import deque
 from api import *
+import json
 
-
+config = json.load(open('config.json'))
 
 NOSE = 0
 RIGHT_EYE_INNER = 1
@@ -81,7 +82,7 @@ outputFrame = None
 lock = threading.Lock()
 
 print("[INFO] opening ip camera feed...")
-vs = VideoStream("http://admin:750801@98.199.131.202/videostream.cgi?rate=0").start()
+vs = VideoStream(config["camera"]).start()
 time.sleep(2.0)
 
 
@@ -203,7 +204,6 @@ def task2_analysis(speed,image):
         endTest()
         
         updateTask(2,30)#higher risk, 
-
         
     return image
 
@@ -296,6 +296,13 @@ def analyze_frames(image):
     mp_drawing.draw_landmarks(
         image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
     
+    #Determine if hand is close to mouth for water
+    mid_mouth = np.divide(np.add(idx_to_coordinates[LEFT_MOUTH],idx_to_coordinates[RIGHT_MOUTH]),2)
+    l_hand_dist = math.sqrt(sum(np.square(np.subtract(mid_mouth,idx_to_coordinates[LEFT_WRIST]))))
+    r_hand_dist = math.sqrt(sum(np.square(np.subtract(mid_mouth,idx_to_coordinates[RIGHT_WRIST]))))
+    if l_hand_dist<20 or r_hand_dist<20:
+        image = cv2.putText(image, "Drinking", (20,80), font,  
+             fontScale, color, thickness, cv2.LINE_AA)
     
     # font 
     font = cv2.FONT_HERSHEY_SIMPLEX 
@@ -341,6 +348,7 @@ def analyze_frames(image):
         #             fontScale, color, thickness, cv2.LINE_AA)
         status="moving"
         cache(status)
+        #@Steven need to create endpoint for movement
     elif knee_shoulder_angle<45 and hip_shoulder_angle<45:
         # image = cv2.putText(image, "Fallen over", (20,80), font,  
         #             fontScale, color, thickness, cv2.LINE_AA)

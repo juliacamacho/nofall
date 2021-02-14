@@ -2,3 +2,5 @@ env/
 *.mp4
 *.avi
 __pycache__/
+
+config.json
